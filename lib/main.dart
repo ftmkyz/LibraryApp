@@ -10,7 +10,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Kitap Uygulaması',
+      title: 'Kitaplarım',
       theme: ThemeData(primarySwatch: Colors.blue),
       home: HomePage(),
     );

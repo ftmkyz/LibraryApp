@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:library_app/widgets/textarea.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class KitaplarSayfasi extends StatefulWidget {
   const KitaplarSayfasi({super.key});
@@ -16,6 +18,29 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
 
   List<Map<String, String>> kitapListesi = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _kitaplariYukle();
+  }
+
+  Future<void> _kitaplariYukle() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String? kitapJson = prefs.getString('kitapListesi');
+    if (kitapJson != null) {
+      setState(() {
+        kitapListesi = List<Map<String, String>>.from(
+          json.decode(kitapJson).map((e) => Map<String, String>.from(e)),
+        );
+      });
+    }
+  }
+
+  Future<void> _kitaplariKaydet() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('kitapListesi', json.encode(kitapListesi));
+  }
+
   void _kitapEkle() {
     if (_formKey.currentState!.validate()) {
       setState(() {
@@ -30,7 +55,108 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
         _yayineviController.clear();
         _isbnController.clear();
       });
+      _kitaplariKaydet();
     }
+  }
+
+  void _kitapSil(int index) {
+    setState(() {
+      kitapListesi.removeAt(index);
+    });
+    _kitaplariKaydet();
+  }
+
+  void _kitapDuzenle(int index) {
+    final kitap = kitapListesi[index];
+    _kitapAdiController.text = kitap["kitapAdi"] ?? "";
+    _yazarController.text = kitap["yazar"] ?? "";
+    _yayineviController.text = kitap["yayinevi"] ?? "";
+    _isbnController.text = kitap["isbn"] ?? "";
+
+    final _editFormKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Kitap Düzenle"),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _editFormKey,
+              child: Column(
+                children: [
+                  TextAreaGroup(
+                    controller: _kitapAdiController,
+                    textType: 'TextFormField',
+                    textHeight: 50,
+                    textWidth: MediaQuery.of(context).size.width,
+                    hintText: 'Kitap Adı',
+                    errorText: 'Kitap adı gerekli',
+                  ),
+                  TextAreaGroup(
+                    controller: _yazarController,
+                    textType: 'TextFormField',
+                    textHeight: 50,
+                    textWidth: MediaQuery.of(context).size.width,
+                    hintText: 'Yazar Adı',
+                    errorText: '',
+                  ),
+                  TextAreaGroup(
+                    controller: _yayineviController,
+                    textType: 'TextFormField',
+                    textHeight: 50,
+                    textWidth: MediaQuery.of(context).size.width,
+                    hintText: 'Yayınevi',
+                    errorText: '',
+                  ),
+                  TextAreaGroup(
+                    controller: _isbnController,
+                    textType: 'TextFormField',
+                    textHeight: 50,
+                    textWidth: MediaQuery.of(context).size.width,
+                    hintText: 'ISBN',
+                    errorText: '',
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                _kitapAdiController.clear();
+                _yazarController.clear();
+                _yayineviController.clear();
+                _isbnController.clear();
+                Navigator.pop(context);
+              },
+              child: Text("İptal"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_editFormKey.currentState!.validate()) {
+                  setState(() {
+                    kitapListesi[index] = {
+                      "kitapAdi": _kitapAdiController.text,
+                      "yazar": _yazarController.text,
+                      "yayinevi": _yayineviController.text,
+                      "isbn": _isbnController.text,
+                    };
+                  });
+                  _kitaplariKaydet();
+                  _kitapAdiController.clear();
+                  _yazarController.clear();
+                  _yayineviController.clear();
+                  _isbnController.clear();
+                  Navigator.pop(context);
+                }
+              },
+              child: Text("Kaydet"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -75,24 +201,6 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                   hintText: 'ISBN',
                   errorText: '',
                 ),
-                // TextFormField(
-                //   controller: _kitapAdiController,
-                //   decoration: InputDecoration(labelText: "Kitap Adı"),
-                //   validator: (value) =>
-                //       value!.isEmpty ? "Kitap adı gerekli" : null,
-                // ),
-                // TextFormField(
-                //   controller: _yazarController,
-                //   decoration: InputDecoration(labelText: "Yazar Adı"),
-                // ),
-                // TextFormField(
-                //   controller: _yayineviController,
-                //   decoration: InputDecoration(labelText: "Yayınevi"),
-                // ),
-                // TextFormField(
-                //   controller: _isbnController,
-                //   decoration: InputDecoration(labelText: "ISBN"),
-                // ),
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _kitapEkle,
@@ -112,6 +220,19 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                 title: Text(kitap["kitapAdi"] ?? ""),
                 subtitle: Text(
                   "Yazar: ${kitap["yazar"]}, Yayınevi: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}",
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () => _kitapDuzenle(index),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close, color: Colors.red),
+                      onPressed: () => _kitapSil(index),
+                    ),
+                  ],
                 ),
               );
             },

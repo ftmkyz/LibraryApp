@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.library_app"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "27.0.12077973" // Set required NDK version for shared_preferences_android
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
