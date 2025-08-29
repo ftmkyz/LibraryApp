@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:library_app/pages/kitaplar.dart';
 import 'package:library_app/pages/wishlist.dart';
+import 'package:library_app/pages/edit_profile.dart';
 
 class HomePage extends StatefulWidget {
   final Locale? locale;
@@ -119,10 +120,33 @@ class _HomePageState extends State<HomePage>
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Colors.blue),
-              child: Text(
-                isTurkish ? "Menü" : "Menu",
-                style: TextStyle(color: Colors.white, fontSize: 24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.grey[900]
+                    : Colors.blue[100],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 32,
+                    backgroundImage: AssetImage('assets/profile.jpg'),
+                    backgroundColor: Colors.transparent,
+                    onBackgroundImageError:
+                        (_, __) {}, // If image not found, show empty avatar
+                    child: null, // No child, so empty if image not found
+                  ),
+                  SizedBox(height: 12),
+                  Text(
+                    isTurkish ? "Menü" : "Menu",
+                    style: TextStyle(
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? Colors.white
+                          : Colors.black,
+                      fontSize: 24,
+                    ),
+                  ),
+                ],
               ),
             ),
             ListTile(
@@ -137,6 +161,15 @@ class _HomePageState extends State<HomePage>
               onTap: () {
                 _tabController.animateTo(1);
                 Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text(isTurkish ? "Profili Düzenle" : "Edit Profile"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => EditProfilePage()),
+                );
               },
             ),
           ],
