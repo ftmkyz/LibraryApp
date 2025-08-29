@@ -14,6 +14,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   Locale _locale = const Locale('tr');
+  bool _isDarkTheme = false;
 
   void _changeLanguage(Locale locale) {
     setState(() {
@@ -21,11 +22,20 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void _toggleTheme(bool isDark) {
+    setState(() {
+      _isDarkTheme = isDark;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Kitaplarım',
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(
+        brightness: _isDarkTheme ? Brightness.dark : Brightness.light,
+        primarySwatch: Colors.blue,
+      ),
       locale: _locale,
       supportedLocales: const [Locale('en'), Locale('tr')],
       localizationsDelegates: [
@@ -33,7 +43,12 @@ class _MyAppState extends State<MyApp> {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      home: HomePage(locale: _locale, onLocaleChange: _changeLanguage),
+      home: HomePage(
+        locale: _locale,
+        onLocaleChange: _changeLanguage,
+        isDarkTheme: _isDarkTheme,
+        onThemeToggle: _toggleTheme,
+      ),
     );
   }
 }
