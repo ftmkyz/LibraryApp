@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:library_app/pages/kitaplar.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final Locale? locale;
+  final ValueChanged<Locale>? onLocaleChange;
+  const HomePage({super.key, this.locale, this.onLocaleChange});
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -19,14 +21,32 @@ class _HomePageState extends State<HomePage>
 
   @override
   Widget build(BuildContext context) {
+    final isTurkish = widget.locale?.languageCode == 'tr';
     return Scaffold(
       appBar: AppBar(
-        title: Text('Kitaplarım'),
+        title: Text(isTurkish ? 'Kitaplarım' : 'My Books'),
+        actions: [
+          DropdownButton<Locale>(
+            value: widget.locale ?? const Locale('tr'),
+            icon: const Icon(Icons.language, color: Colors.white),
+            dropdownColor: Colors.white,
+            underline: Container(),
+            onChanged: (Locale? newLocale) {
+              if (newLocale != null && widget.onLocaleChange != null) {
+                widget.onLocaleChange!(newLocale);
+              }
+            },
+            items: const [
+              DropdownMenuItem(value: Locale('en'), child: Text('English')),
+              DropdownMenuItem(value: Locale('tr'), child: Text('Türkçe')),
+            ],
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: "Kitaplar"),
-            Tab(text: "Alınacak listesi"),
+            Tab(text: isTurkish ? "Kitaplar" : "Books"),
+            Tab(text: isTurkish ? "Alınacak listesi" : "Wishlist"),
           ],
         ),
       ),
@@ -37,21 +57,19 @@ class _HomePageState extends State<HomePage>
             DrawerHeader(
               decoration: BoxDecoration(color: Colors.blue),
               child: Text(
-                "Menü",
+                isTurkish ? "Menü" : "Menu",
                 style: TextStyle(color: Colors.white, fontSize: 24),
               ),
             ),
             ListTile(
-              leading: Icon(Icons.book),
-              title: Text("Kitaplar"),
+              title: Text(isTurkish ? "Kitaplar" : "Books"),
               onTap: () {
                 _tabController.animateTo(0);
                 Navigator.pop(context);
               },
             ),
             ListTile(
-              leading: Icon(Icons.settings),
-              title: Text("Alınacak Listesi"),
+              title: Text(isTurkish ? "Alınacak listesi" : "Wishlist"),
               onTap: () {
                 _tabController.animateTo(1);
                 Navigator.pop(context);

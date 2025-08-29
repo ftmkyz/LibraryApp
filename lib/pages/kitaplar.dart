@@ -78,8 +78,10 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
     showDialog(
       context: context,
       builder: (context) {
+        final inheritedLocale = Localizations.localeOf(context);
+        final isTurkish = inheritedLocale.languageCode == 'tr';
         return AlertDialog(
-          title: Text("Kitap Düzenle"),
+          title: Text(isTurkish ? "Kitap Düzenle" : "Edit Book"),
           content: SingleChildScrollView(
             child: Form(
               key: _editFormKey,
@@ -90,15 +92,17 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                     textType: 'TextFormField',
                     textHeight: 50,
                     textWidth: MediaQuery.of(context).size.width,
-                    hintText: 'Kitap Adı',
-                    errorText: 'Kitap adı gerekli',
+                    hintText: isTurkish ? 'Kitap Adı' : 'Book Name',
+                    errorText: isTurkish
+                        ? 'Kitap adı gerekli'
+                        : 'Book name required',
                   ),
                   TextAreaGroup(
                     controller: _yazarController,
                     textType: 'TextFormField',
                     textHeight: 50,
                     textWidth: MediaQuery.of(context).size.width,
-                    hintText: 'Yazar Adı',
+                    hintText: isTurkish ? 'Yazar Adı' : 'Author',
                     errorText: '',
                   ),
                   TextAreaGroup(
@@ -106,7 +110,7 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                     textType: 'TextFormField',
                     textHeight: 50,
                     textWidth: MediaQuery.of(context).size.width,
-                    hintText: 'Yayınevi',
+                    hintText: isTurkish ? 'Yayınevi' : 'Publisher',
                     errorText: '',
                   ),
                   TextAreaGroup(
@@ -130,7 +134,7 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                 _isbnController.clear();
                 Navigator.pop(context);
               },
-              child: Text("İptal"),
+              child: Text(isTurkish ? "İptal" : "Cancel"),
             ),
             ElevatedButton(
               onPressed: () {
@@ -151,7 +155,7 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                   Navigator.pop(context);
                 }
               },
-              child: Text("Kaydet"),
+              child: Text(isTurkish ? "Kaydet" : "Save"),
             ),
           ],
         );
@@ -161,6 +165,9 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
 
   @override
   Widget build(BuildContext context) {
+    // Get locale from parent (HomePage)
+    final inheritedLocale = Localizations.localeOf(context);
+    final isTurkish = inheritedLocale.languageCode == 'tr';
     return Column(
       children: [
         Form(
@@ -174,15 +181,17 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                   textType: 'TextFormField',
                   textHeight: 50,
                   textWidth: MediaQuery.of(context).size.width,
-                  hintText: 'Kitap Adı',
-                  errorText: 'Kitap adı gerekli',
+                  hintText: isTurkish ? 'Kitap Adı' : 'Book Name',
+                  errorText: isTurkish
+                      ? 'Kitap adı gerekli'
+                      : 'Book name required',
                 ),
                 TextAreaGroup(
                   controller: _yazarController,
                   textType: 'TextFormField',
                   textHeight: 50,
                   textWidth: MediaQuery.of(context).size.width,
-                  hintText: 'Yazar Adı',
+                  hintText: isTurkish ? 'Yazar Adı' : 'Author',
                   errorText: '',
                 ),
                 TextAreaGroup(
@@ -190,7 +199,7 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                   textType: 'TextFormField',
                   textHeight: 50,
                   textWidth: MediaQuery.of(context).size.width,
-                  hintText: 'Yayınevi',
+                  hintText: isTurkish ? 'Yayınevi' : 'Publisher',
                   errorText: '',
                 ),
                 TextAreaGroup(
@@ -204,7 +213,7 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _kitapEkle,
-                  child: Text("Kitap Ekle"),
+                  child: Text(isTurkish ? "Kitap Ekle" : "Add Book"),
                 ),
               ],
             ),
@@ -219,7 +228,9 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                 leading: Icon(Icons.book),
                 title: Text(kitap["kitapAdi"] ?? ""),
                 subtitle: Text(
-                  "Yazar: ${kitap["yazar"]}, Yayınevi: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}",
+                  isTurkish
+                      ? "Yazar: ${kitap["yazar"]}, Yayınevi: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}"
+                      : "Author: ${kitap["yazar"]}, Publisher: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}",
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
