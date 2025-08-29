@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:library_app/pages/kitaplar.dart';
+import 'package:library_app/pages/wishlist.dart';
 
 class HomePage extends StatefulWidget {
   final Locale? locale;
@@ -82,7 +83,7 @@ class _HomePageState extends State<HomePage>
         controller: _tabController,
         children: [
           KitaplarSayfasi(),
-          Center(child: Text("Burada farklı bir sayfa olacak")),
+          WishlistPage(locale: widget.locale),
         ],
       ),
     );
