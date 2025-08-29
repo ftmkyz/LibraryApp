@@ -73,7 +73,7 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
     _yayineviController.text = kitap["yayinevi"] ?? "";
     _isbnController.text = kitap["isbn"] ?? "";
 
-    final _editFormKey = GlobalKey<FormState>();
+    final editFormKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
@@ -84,7 +84,7 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
           title: Text(isTurkish ? "Kitap Düzenle" : "Edit Book"),
           content: SingleChildScrollView(
             child: Form(
-              key: _editFormKey,
+              key: editFormKey,
               child: Column(
                 children: [
                   TextAreaGroup(
@@ -138,7 +138,7 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (_editFormKey.currentState!.validate()) {
+                if (editFormKey.currentState!.validate()) {
                   setState(() {
                     kitapListesi[index] = {
                       "kitapAdi": _kitapAdiController.text,

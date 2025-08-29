@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:library_app/widgets/textarea.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
@@ -60,16 +59,16 @@ class _WishlistPageState extends State<WishlistPage> {
     }
   }
 
-  void _removeAndMoveToBooks(int index) {
-    final book = wishlist[index];
-    setState(() {
-      wishlist.removeAt(index);
-    });
-    _saveWishlist();
-    if (widget.onMoveToBooks != null) {
-      widget.onMoveToBooks!(book);
-    }
-  }
+  // void _removeAndMoveToBooks(int index) {
+  //   final book = wishlist[index];
+  //   setState(() {
+  //     wishlist.removeAt(index);
+  //   });
+  //   _saveWishlist();
+  //   if (widget.onMoveToBooks != null) {
+  //     widget.onMoveToBooks!(book);
+  //   }
+  // }
 
   void _deleteWishlistBook(int index) {
     setState(() {
@@ -103,7 +102,7 @@ class _WishlistPageState extends State<WishlistPage> {
     _yazarController.text = kitap["yazar"] ?? "";
     _yayineviController.text = kitap["yayinevi"] ?? "";
     _isbnController.text = kitap["isbn"] ?? "";
-    final _editFormKey = GlobalKey<FormState>();
+    final editFormKey = GlobalKey<FormState>();
     final isTurkish = widget.locale?.languageCode == 'tr';
     showDialog(
       context: context,
@@ -112,7 +111,7 @@ class _WishlistPageState extends State<WishlistPage> {
           title: Text(isTurkish ? "Kitap Düzenle" : "Edit Book"),
           content: SingleChildScrollView(
             child: Form(
-              key: _editFormKey,
+              key: editFormKey,
               child: Column(
                 children: [
                   TextFormField(
@@ -159,7 +158,7 @@ class _WishlistPageState extends State<WishlistPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (_editFormKey.currentState!.validate()) {
+                if (editFormKey.currentState!.validate()) {
                   setState(() {
                     wishlist[index] = {
                       "kitapAdi": _kitapAdiController.text,
