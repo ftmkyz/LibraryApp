@@ -24,6 +24,7 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
 
   String _searchText = '';
   bool _showSearchField = false;
+  String _filterType = 'all';
 
   @override
   void initState() {
@@ -375,6 +376,40 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                         );
                       },
                     ),
+                    // Filter dropdown moved here
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: DropdownButton<String>(
+                        value: _filterType,
+                        items: [
+                          DropdownMenuItem(
+                            value: 'all',
+                            child: Text(isTurkish ? 'Tümü' : 'All'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'read',
+                            child: Text(isTurkish ? 'Okunanlar' : 'Read'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'unread',
+                            child: Text(isTurkish ? 'Okunmayanlar' : 'Unread'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'az',
+                            child: Text(isTurkish ? 'A-Z' : 'A-Z'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'za',
+                            child: Text(isTurkish ? 'Z-A' : 'Z-A'),
+                          ),
+                        ],
+                        onChanged: (val) {
+                          setState(() {
+                            _filterType = val ?? 'all';
+                          });
+                        },
+                      ),
+                    ),
                   ],
                 ),
                 // SizedBox(height: 20),
@@ -387,100 +422,131 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
           ),
         ),
         Expanded(
-          child: ListView.builder(
-            itemCount: kitapListesi.where((kitap) {
-              final query = _searchText.toLowerCase();
-              return kitap["kitapAdi"]?.toLowerCase().contains(query) == true ||
-                  kitap["yazar"]?.toLowerCase().contains(query) == true ||
-                  kitap["yayinevi"]?.toLowerCase().contains(query) == true ||
-                  kitap["isbn"]?.toLowerCase().contains(query) == true;
-            }).length,
-            itemBuilder: (context, index) {
-              final filteredList = kitapListesi.where((kitap) {
+          child: Builder(
+            builder: (context) {
+              List<Map<String, String>> filteredList = kitapListesi.where((
+                kitap,
+              ) {
                 final query = _searchText.toLowerCase();
-                return kitap["kitapAdi"]?.toLowerCase().contains(query) ==
-                        true ||
-                    kitap["yazar"]?.toLowerCase().contains(query) == true ||
-                    kitap["yayinevi"]?.toLowerCase().contains(query) == true ||
-                    kitap["isbn"]?.toLowerCase().contains(query) == true;
+                final isRead =
+                    (kitap["tamamlandi"] == "true") ||
+                    ((kitap["sayfaSayisi"] ?? "") != "" &&
+                        (kitap["okunanSayfa"] ?? "") != "" &&
+                        kitap["sayfaSayisi"] == kitap["okunanSayfa"]);
+                bool matchesFilter = true;
+                if (_filterType == 'read') matchesFilter = isRead;
+                if (_filterType == 'unread') matchesFilter = !isRead;
+                return (kitap["kitapAdi"]?.toLowerCase().contains(query) ==
+                            true ||
+                        kitap["yazar"]?.toLowerCase().contains(query) == true ||
+                        kitap["yayinevi"]?.toLowerCase().contains(query) ==
+                            true ||
+                        kitap["isbn"]?.toLowerCase().contains(query) == true) &&
+                    matchesFilter;
               }).toList();
-              final kitap = filteredList[index];
-              return ListTile(
-                leading: Icon(Icons.book),
-                title: Text(kitap["kitapAdi"] ?? ""),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isTurkish
-                          ? "Yazar: ${kitap["yazar"]}, Yayınevi: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}, Sayfa: ${kitap["sayfaSayisi"]}"
-                          : "Author: ${kitap["yazar"]}, Publisher: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}, Pages: ${kitap["sayfaSayisi"]}",
+              if (_filterType == 'az') {
+                filteredList.sort(
+                  (a, b) =>
+                      (a["kitapAdi"] ?? "").compareTo(b["kitapAdi"] ?? ""),
+                );
+              } else if (_filterType == 'za') {
+                filteredList.sort(
+                  (a, b) =>
+                      (b["kitapAdi"] ?? "").compareTo(a["kitapAdi"] ?? ""),
+                );
+              }
+              return ListView.builder(
+                itemCount: filteredList.length,
+                itemBuilder: (context, index) {
+                  final kitap = filteredList[index];
+                  return ListTile(
+                    leading: Icon(Icons.book),
+                    title: Text(kitap["kitapAdi"] ?? ""),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isTurkish
+                              ? "Yazar: ${kitap["yazar"]}, Yayınevi: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}, Sayfa: ${kitap["sayfaSayisi"]}"
+                              : "Author: ${kitap["yazar"]}, Publisher: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}, Pages: ${kitap["sayfaSayisi"]}",
+                        ),
+                        if ((kitap["sayfaSayisi"] ?? "").isNotEmpty &&
+                            (kitap["okunanSayfa"] ?? "").isNotEmpty)
+                          Builder(
+                            builder: (context) {
+                              final total =
+                                  int.tryParse(kitap["sayfaSayisi"] ?? "") ?? 0;
+                              final read =
+                                  int.tryParse(kitap["okunanSayfa"] ?? "") ?? 0;
+                              final isCompleted = kitap["tamamlandi"] == "true";
+                              final percent = (isCompleted && total > 0)
+                                  ? 1.0
+                                  : total > 0
+                                  ? (read / total).clamp(0.0, 1.0)
+                                  : 0.0;
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 8),
+                                  LinearProgressIndicator(
+                                    value: percent,
+                                    minHeight: 8,
+                                    backgroundColor: Colors.grey[300],
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.green,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    isTurkish
+                                        ? "%${(percent * 100).toStringAsFixed(0)} okundu"
+                                        : "%${(percent * 100).toStringAsFixed(0)} read",
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                      ],
                     ),
-                    if ((kitap["sayfaSayisi"] ?? "").isNotEmpty &&
-                        (kitap["okunanSayfa"] ?? "").isNotEmpty)
-                      Builder(
-                        builder: (context) {
-                          final total =
-                              int.tryParse(kitap["sayfaSayisi"] ?? "") ?? 0;
-                          final read =
-                              int.tryParse(kitap["okunanSayfa"] ?? "") ?? 0;
-                          final percent = total > 0
-                              ? (read / total).clamp(0.0, 1.0)
-                              : 0.0;
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SizedBox(height: 8),
-                              LinearProgressIndicator(
-                                value: percent,
-                                minHeight: 8,
-                                backgroundColor: Colors.grey[300],
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.green,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                isTurkish
-                                    ? "%${(percent * 100).toStringAsFixed(0)} okundu"
-                                    : "%${(percent * 100).toStringAsFixed(0)} read",
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                  ],
-                ),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Checkbox(
-                      value:
-                          (kitap["tamamlandi"] == "true") ||
-                          ((kitap["sayfaSayisi"] ?? "") != "" &&
-                              (kitap["okunanSayfa"] ?? "") != "" &&
-                              kitap["sayfaSayisi"] == kitap["okunanSayfa"]),
-                      onChanged: (val) {
-                        setState(() {
-                          kitapListesi[index]["tamamlandi"] = val.toString();
-                        });
-                        _kitaplariKaydet();
-                      },
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Checkbox(
+                          value:
+                              (kitap["tamamlandi"] == "true") ||
+                              ((kitap["sayfaSayisi"] ?? "") != "" &&
+                                  (kitap["okunanSayfa"] ?? "") != "" &&
+                                  kitap["sayfaSayisi"] == kitap["okunanSayfa"]),
+                          onChanged: (val) {
+                            setState(() {
+                              kitapListesi[index]["tamamlandi"] = val
+                                  .toString();
+                              if (val == true) {
+                                // Set progress to 100% and pages read = total pages
+                                final total =
+                                    kitapListesi[index]["sayfaSayisi"] ?? "";
+                                kitapListesi[index]["okunanSayfa"] = total;
+                              }
+                            });
+                            _kitaplariKaydet();
+                          },
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.edit, color: Colors.blue),
+                          onPressed: () => _kitapDuzenle(index),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.close, color: Colors.red),
+                          onPressed: () => _kitapSil(index),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      icon: Icon(Icons.edit, color: Colors.blue),
-                      onPressed: () => _kitapDuzenle(index),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.close, color: Colors.red),
-                      onPressed: () => _kitapSil(index),
-                    ),
-                  ],
-                ),
+                  );
+                },
               );
             },
           ),
