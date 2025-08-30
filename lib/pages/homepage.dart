@@ -110,7 +110,7 @@ class _HomePageState extends State<HomePage>
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: isTurkish ? "Kitaplar" : "Books"),
+            Tab(text: isTurkish ? "Kitaplığım" : "My Books"),
             Tab(text: isTurkish ? "Alınacak listesi" : "Wishlist"),
           ],
         ),
@@ -150,7 +150,7 @@ class _HomePageState extends State<HomePage>
               ),
             ),
             ListTile(
-              title: Text(isTurkish ? "Kitaplar" : "Books"),
+              title: Text(isTurkish ? "Kitaplığım" : "My Books"),
               onTap: () {
                 _tabController.animateTo(0);
                 Navigator.pop(context);
