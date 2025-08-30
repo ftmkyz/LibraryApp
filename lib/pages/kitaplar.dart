@@ -15,6 +15,10 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
   final _yazarController = TextEditingController();
   final _yayineviController = TextEditingController();
   final _isbnController = TextEditingController();
+  final _sayfaSayisiController = TextEditingController();
+  final _okunanSayfaController = TextEditingController();
+  // ignore: prefer_final_fields
+  bool _tamamlandi = false;
 
   List<Map<String, String>> kitapListesi = [];
 
@@ -57,14 +61,14 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
     _yazarController.text = kitap["yazar"] ?? "";
     _yayineviController.text = kitap["yayinevi"] ?? "";
     _isbnController.text = kitap["isbn"] ?? "";
-
+    _sayfaSayisiController.text = kitap["sayfaSayisi"] ?? "";
+    _okunanSayfaController.text = kitap["okunanSayfa"] ?? "";
     final editFormKey = GlobalKey<FormState>();
-
+    final inheritedLocale = Localizations.localeOf(context);
+    final isTurkish = inheritedLocale.languageCode == 'tr';
     showDialog(
       context: context,
       builder: (context) {
-        final inheritedLocale = Localizations.localeOf(context);
-        final isTurkish = inheritedLocale.languageCode == 'tr';
         return AlertDialog(
           title: Text(isTurkish ? "Kitap Düzenle" : "Edit Book"),
           content: SingleChildScrollView(
@@ -106,6 +110,34 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                     hintText: 'ISBN',
                     errorText: '',
                   ),
+                  TextAreaGroup(
+                    controller: _sayfaSayisiController,
+                    textType: 'TextFormField',
+                    textHeight: 50,
+                    textWidth: MediaQuery.of(context).size.width,
+                    hintText: isTurkish ? 'Sayfa Sayısı' : 'Page Count',
+                    errorText: '',
+                  ),
+                  TextAreaGroup(
+                    controller: _okunanSayfaController,
+                    textType: 'TextFormField',
+                    textHeight: 50,
+                    textWidth: MediaQuery.of(context).size.width,
+                    hintText: isTurkish ? 'Okunan Sayfa' : 'Pages Read',
+                    errorText: '',
+                    // Add validator to TextAreaGroup by passing it as a parameter
+                    validator: (value) {
+                      final total =
+                          int.tryParse(_sayfaSayisiController.text) ?? 0;
+                      final read = int.tryParse(value ?? '') ?? 0;
+                      if (read > total) {
+                        return isTurkish
+                            ? 'Okunan sayfa toplamdan fazla olamaz'
+                            : 'Pages read cannot exceed total pages';
+                      }
+                      return null;
+                    },
+                  ),
                 ],
               ),
             ),
@@ -117,6 +149,8 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                 _yazarController.clear();
                 _yayineviController.clear();
                 _isbnController.clear();
+                _sayfaSayisiController.clear();
+                _okunanSayfaController.clear();
                 Navigator.pop(context);
               },
               child: Text(isTurkish ? "İptal" : "Cancel"),
@@ -130,6 +164,9 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                       "yazar": _yazarController.text,
                       "yayinevi": _yayineviController.text,
                       "isbn": _isbnController.text,
+                      "sayfaSayisi": _sayfaSayisiController.text,
+                      "okunanSayfa": _okunanSayfaController.text,
+                      "tamamlandi": _tamamlandi.toString(),
                     };
                   });
                   _kitaplariKaydet();
@@ -137,6 +174,8 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                   _yazarController.clear();
                   _yayineviController.clear();
                   _isbnController.clear();
+                  _sayfaSayisiController.clear();
+                  _okunanSayfaController.clear();
                   Navigator.pop(context);
                 }
               },
@@ -262,6 +301,30 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                                         hintText: 'ISBN',
                                         errorText: '',
                                       ),
+                                      TextAreaGroup(
+                                        controller: _sayfaSayisiController,
+                                        textType: 'TextFormField',
+                                        textHeight: 50,
+                                        textWidth: MediaQuery.of(
+                                          context,
+                                        ).size.width,
+                                        hintText: isTurkish
+                                            ? 'Sayfa Sayısı'
+                                            : 'Page Count',
+                                        errorText: '',
+                                      ),
+                                      TextAreaGroup(
+                                        controller: _okunanSayfaController,
+                                        textType: 'TextFormField',
+                                        textHeight: 50,
+                                        textWidth: MediaQuery.of(
+                                          context,
+                                        ).size.width,
+                                        hintText: isTurkish
+                                            ? 'Okunan Sayfa'
+                                            : 'Pages Read',
+                                        errorText: '',
+                                      ),
                                     ],
                                   ),
                                 ),
@@ -273,6 +336,8 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                                     _yazarController.clear();
                                     _yayineviController.clear();
                                     _isbnController.clear();
+                                    _sayfaSayisiController.clear();
+                                    _okunanSayfaController.clear();
                                     Navigator.pop(context);
                                   },
                                   child: Text(isTurkish ? "İptal" : "Cancel"),
@@ -286,6 +351,10 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                                           "yazar": _yazarController.text,
                                           "yayinevi": _yayineviController.text,
                                           "isbn": _isbnController.text,
+                                          "sayfaSayisi":
+                                              _sayfaSayisiController.text,
+                                          "okunanSayfa":
+                                              _okunanSayfaController.text,
                                         });
                                       });
                                       _kitaplariKaydet();
@@ -293,6 +362,8 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                                       _yazarController.clear();
                                       _yayineviController.clear();
                                       _isbnController.clear();
+                                      _sayfaSayisiController.clear();
+                                      _okunanSayfaController.clear();
                                       Navigator.pop(context);
                                     }
                                   },
@@ -337,14 +408,69 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
               return ListTile(
                 leading: Icon(Icons.book),
                 title: Text(kitap["kitapAdi"] ?? ""),
-                subtitle: Text(
-                  isTurkish
-                      ? "Yazar: ${kitap["yazar"]}, Yayınevi: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}"
-                      : "Author: ${kitap["yazar"]}, Publisher: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}",
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isTurkish
+                          ? "Yazar: ${kitap["yazar"]}, Yayınevi: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}, Sayfa: ${kitap["sayfaSayisi"]}"
+                          : "Author: ${kitap["yazar"]}, Publisher: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}, Pages: ${kitap["sayfaSayisi"]}",
+                    ),
+                    if ((kitap["sayfaSayisi"] ?? "").isNotEmpty &&
+                        (kitap["okunanSayfa"] ?? "").isNotEmpty)
+                      Builder(
+                        builder: (context) {
+                          final total =
+                              int.tryParse(kitap["sayfaSayisi"] ?? "") ?? 0;
+                          final read =
+                              int.tryParse(kitap["okunanSayfa"] ?? "") ?? 0;
+                          final percent = total > 0
+                              ? (read / total).clamp(0.0, 1.0)
+                              : 0.0;
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(height: 8),
+                              LinearProgressIndicator(
+                                value: percent,
+                                minHeight: 8,
+                                backgroundColor: Colors.grey[300],
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.green,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                isTurkish
+                                    ? "%${(percent * 100).toStringAsFixed(0)} okundu"
+                                    : "%${(percent * 100).toStringAsFixed(0)} read",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                  ],
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    Checkbox(
+                      value:
+                          (kitap["tamamlandi"] == "true") ||
+                          ((kitap["sayfaSayisi"] ?? "") != "" &&
+                              (kitap["okunanSayfa"] ?? "") != "" &&
+                              kitap["sayfaSayisi"] == kitap["okunanSayfa"]),
+                      onChanged: (val) {
+                        setState(() {
+                          kitapListesi[index]["tamamlandi"] = val.toString();
+                        });
+                        _kitaplariKaydet();
+                      },
+                    ),
                     IconButton(
                       icon: Icon(Icons.edit, color: Colors.blue),
                       onPressed: () => _kitapDuzenle(index),

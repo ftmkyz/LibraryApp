@@ -9,6 +9,7 @@ class TextAreaGroup extends StatelessWidget {
     required this.textWidth,
     required this.errorText,
     required this.controller,
+    this.validator,
   });
 
   final String textType;
@@ -17,6 +18,7 @@ class TextAreaGroup extends StatelessWidget {
   final String hintText;
   final String errorText;
   final TextEditingController controller;
+  final String? Function(String?)? validator;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -49,10 +51,12 @@ class TextAreaGroup extends StatelessWidget {
                 ),
                 child: TextFormField(
                   controller: controller,
-                  validator: (value) {
-                    if (errorText.isEmpty) return null;
-                    return value!.isEmpty ? errorText : null;
-                  },
+                  validator:
+                      validator ??
+                      (value) {
+                        if (errorText.isEmpty) return null;
+                        return value!.isEmpty ? errorText : null;
+                      },
                   decoration: InputDecoration(
                     // border: UnderlineInputBorder(),
                     labelText: hintText,
