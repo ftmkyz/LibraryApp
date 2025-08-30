@@ -530,6 +530,9 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                                 final total =
                                     kitapListesi[index]["sayfaSayisi"] ?? "";
                                 kitapListesi[index]["okunanSayfa"] = total;
+                              } else {
+                                // If unchecked, reset pages read to 0
+                                kitapListesi[index]["okunanSayfa"] = "0";
                               }
                             });
                             _kitaplariKaydet();
