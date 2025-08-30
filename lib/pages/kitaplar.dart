@@ -460,15 +460,32 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                 itemBuilder: (context, index) {
                   final kitap = filteredList[index];
                   return ListTile(
-                    leading: Icon(Icons.book),
+                    leading: Icon(Icons.menu_book),
                     title: Text(kitap["kitapAdi"] ?? ""),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           isTurkish
-                              ? "Yazar: ${kitap["yazar"]}, Yayınevi: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}, Sayfa: ${kitap["sayfaSayisi"]}"
-                              : "Author: ${kitap["yazar"]}, Publisher: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}, Pages: ${kitap["sayfaSayisi"]}",
+                              ? "Yazar: ${kitap["yazar"]}"
+                              : "Author: ${kitap["yazar"]}",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          isTurkish
+                              ? "Yayınevi: ${kitap["yayinevi"]}"
+                              : "Publisher: ${kitap["yayinevi"]}",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          "ISBN: ${kitap["isbn"]}",
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        Text(
+                          isTurkish
+                              ? "Sayfa: ${kitap["sayfaSayisi"]}"
+                              : "Pages: ${kitap["sayfaSayisi"]}",
+                          style: TextStyle(fontSize: 14),
                         ),
                         if ((kitap["sayfaSayisi"] ?? "").isNotEmpty &&
                             (kitap["okunanSayfa"] ?? "").isNotEmpty)
