@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage>
                 child: Row(
                   children: [
                     Icon(
-                      Icons.language,
+                      Icons.translate,
                       color: Theme.of(context).brightness == Brightness.dark
                           ? Colors.white
                           : Theme.of(context).iconTheme.color,
@@ -73,7 +73,7 @@ class _HomePageState extends State<HomePage>
                 child: Row(
                   children: [
                     Icon(
-                      Icons.language,
+                      Icons.translate,
                       color: Theme.of(context).brightness == Brightness.dark
                           ? Colors.white
                           : Theme.of(context).iconTheme.color,
@@ -94,7 +94,9 @@ class _HomePageState extends State<HomePage>
           ),
           IconButton(
             icon: Icon(
-              widget.isDarkTheme ? Icons.dark_mode : Icons.light_mode,
+              widget.isDarkTheme
+                  ? Icons.dark_mode_outlined
+                  : Icons.light_mode_outlined,
               color: Theme.of(context).iconTheme.color,
             ),
             tooltip: widget.isDarkTheme

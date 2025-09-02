@@ -36,6 +36,7 @@ class TextAreaGroup extends StatelessWidget {
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     hintText: hintText,
+                    floatingLabelBehavior: FloatingLabelBehavior.auto,
                   ),
                 ),
               ),
@@ -59,7 +60,8 @@ class TextAreaGroup extends StatelessWidget {
                       },
                   decoration: InputDecoration(
                     // border: UnderlineInputBorder(),
-                    labelText: hintText,
+                    hintText: hintText,
+                    floatingLabelBehavior: FloatingLabelBehavior.auto,
                   ),
                 ),
               ),

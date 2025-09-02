@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:library_app/widgets/textarea.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -202,30 +204,49 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
             child: Column(
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
-                      child: _showSearchField
-                          ? SizedBox(
-                              width: 200,
-                              child: TextField(
+                      child: AnimatedSwitcher(
+                        duration: Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) {
+                          return SizeTransition(
+                            sizeFactor: animation,
+                            axis: Axis.horizontal,
+                            child: FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: _showSearchField
+                            ? TextField(
+                                key: ValueKey(
+                                  1,
+                                ), // switch animasyonu için gerekli
                                 decoration: InputDecoration(
-                                  labelText: isTurkish
+                                  hintText: isTurkish
                                       ? 'Kitaplarda Ara'
                                       : 'Search Books',
+                                  isDense: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 8,
+                                  ),
                                 ),
                                 onChanged: (value) {
                                   setState(() {
                                     _searchText = value;
                                   });
                                 },
-                              ),
-                            )
-                          : SizedBox.shrink(),
+                              )
+                            : SizedBox(key: ValueKey(2)),
+                      ),
                     ),
                     IconButton(
                       icon: Icon(
-                        Icons.search,
-                        color: const Color.fromARGB(255, 8, 191, 173),
+                        Icons.search_outlined,
+                        color: const Color.fromARGB(255, 106, 66, 5),
                       ),
                       onPressed: () {
                         setState(() {
@@ -377,10 +398,12 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                       },
                     ),
                     // Filter dropdown moved here
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8.0),
+                    SizedBox(
+                      height: 32, // TextField ile aynı
                       child: DropdownButton<String>(
                         value: _filterType,
+                        isDense: true, // daha kompakt görünüm
+                        underline: SizedBox(), // çizgiyi kaldırır (opsiyonel)
                         items: [
                           DropdownMenuItem(
                             value: 'all',
@@ -394,14 +417,8 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                             value: 'unread',
                             child: Text(isTurkish ? 'Okunmayanlar' : 'Unread'),
                           ),
-                          DropdownMenuItem(
-                            value: 'az',
-                            child: Text(isTurkish ? 'A-Z' : 'A-Z'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'za',
-                            child: Text(isTurkish ? 'Z-A' : 'Z-A'),
-                          ),
+                          DropdownMenuItem(value: 'az', child: Text('A-Z')),
+                          DropdownMenuItem(value: 'za', child: Text('Z-A')),
                         ],
                         onChanged: (val) {
                           setState(() {
@@ -412,11 +429,6 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                     ),
                   ],
                 ),
-                // SizedBox(height: 20),
-                // ElevatedButton(
-                //   onPressed: _kitapEkle,
-                //   child: Text(isTurkish ? "Kitap Ekle" : "Add Book"),
-                // ),
               ],
             ),
           ),
