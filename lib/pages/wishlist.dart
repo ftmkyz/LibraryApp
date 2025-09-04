@@ -202,7 +202,7 @@ class _WishlistPageState extends State<WishlistPage> {
                     IconButton(
                       icon: Icon(
                         Icons.search,
-                        color: const Color.fromARGB(255, 8, 191, 173),
+                        color: Theme.of(context).primaryColor,
                       ),
                       onPressed: () {
                         setState(() {
@@ -213,7 +213,7 @@ class _WishlistPageState extends State<WishlistPage> {
                     IconButton(
                       icon: Icon(
                         Icons.add,
-                        color: const Color.fromARGB(255, 77, 121, 3),
+                        color: Theme.of(context).colorScheme.secondary,
                       ),
                       onPressed: () {
                         final isTurkish = widget.locale?.languageCode == 'tr';
@@ -322,56 +322,95 @@ class _WishlistPageState extends State<WishlistPage> {
                   ),
                 )
               : ListView.builder(
-                  itemCount: wishlist.where((kitap) {
-                    final query = _searchText.toLowerCase();
-                    return kitap["kitapAdi"]?.toLowerCase().contains(query) ==
-                            true ||
-                        kitap["yazar"]?.toLowerCase().contains(query) == true ||
-                        kitap["yayinevi"]?.toLowerCase().contains(query) ==
-                            true ||
-                        kitap["isbn"]?.toLowerCase().contains(query) == true;
-                  }).length,
+                  itemCount: wishlist.length,
                   itemBuilder: (context, index) {
-                    final filteredList = wishlist.where((kitap) {
-                      final query = _searchText.toLowerCase();
-                      return kitap["kitapAdi"]?.toLowerCase().contains(query) ==
-                              true ||
-                          kitap["yazar"]?.toLowerCase().contains(query) ==
-                              true ||
-                          kitap["yayinevi"]?.toLowerCase().contains(query) ==
-                              true ||
-                          kitap["isbn"]?.toLowerCase().contains(query) == true;
-                    }).toList();
-                    final kitap = filteredList[index];
-                    return ListTile(
-                      leading: Icon(Icons.bookmark),
-                      title: Text(kitap["kitapAdi"] ?? ""),
-                      subtitle: Text(
-                        isTurkish
-                            ? "Yazar: ${kitap["yazar"]}, Yayınevi: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}"
-                            : "Author: ${kitap["yazar"]}, Publisher: ${kitap["yayinevi"]}, ISBN: ${kitap["isbn"]}",
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.add, color: Colors.green),
-                            tooltip: isTurkish
-                                ? "Kitaplara Ekle"
-                                : "Add to Books",
-                            onPressed: () => _addToBooks(index),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.edit, color: Colors.blue),
-                            tooltip: isTurkish ? "Düzenle" : "Edit",
-                            onPressed: () => _editWishlistBook(index),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.delete, color: Colors.red),
-                            tooltip: isTurkish ? "Sil" : "Delete",
-                            onPressed: () => _deleteWishlistBook(index),
+                    final kitap = wishlist[index];
+                    final theme = Theme.of(context);
+                    final isDark = theme.brightness == Brightness.dark;
+                    return Container(
+                      margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: [
+                          BoxShadow(
+                            color: isDark
+                                ? Colors.black54
+                                : Colors.grey.withOpacity(0.3),
+                            blurRadius: 12,
+                            spreadRadius: 2,
+                            offset: Offset(0, 4),
                           ),
                         ],
+                      ),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        leading: Icon(
+                          Icons.bookmark,
+                          color: theme.primaryColor,
+                        ),
+                        title: Text(
+                          kitap["kitapAdi"] ?? "",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isTurkish
+                                  ? "Yazar: ${kitap["yazar"]}"
+                                  : "Author: ${kitap["yazar"]}",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              isTurkish
+                                  ? "Yayınevi: ${kitap["yayinevi"]}"
+                                  : "Publisher: ${kitap["yayinevi"]}",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              "ISBN: ${kitap["isbn"]}",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.add,
+                                color: theme.colorScheme.secondary,
+                              ),
+                              tooltip: isTurkish
+                                  ? "Kitaplara Ekle"
+                                  : "Add to Books",
+                              onPressed: () => _addToBooks(index),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.edit,
+                                color: theme.colorScheme.secondary,
+                              ),
+                              tooltip: isTurkish ? "Düzenle" : "Edit",
+                              onPressed: () => _editWishlistBook(index),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.close,
+                                color: isDark ? Colors.red[300] : Colors.red,
+                              ),
+                              tooltip: isTurkish ? "Sil" : "Delete",
+                              onPressed: () => _deleteWishlistBook(index),
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },

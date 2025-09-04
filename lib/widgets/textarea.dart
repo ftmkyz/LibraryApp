@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class TextAreaGroup extends StatelessWidget {
   const TextAreaGroup({
@@ -10,6 +11,8 @@ class TextAreaGroup extends StatelessWidget {
     required this.errorText,
     required this.controller,
     this.validator,
+    this.keyboardType,
+    this.inputFormatters,
   });
 
   final String textType;
@@ -19,6 +22,8 @@ class TextAreaGroup extends StatelessWidget {
   final String errorText;
   final TextEditingController controller;
   final String? Function(String?)? validator;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -46,10 +51,7 @@ class TextAreaGroup extends StatelessWidget {
               width: textWidth,
               height: textHeight,
               child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  // horizontal: 8,
-                  // vertical: 20,
-                ),
+                padding: const EdgeInsets.symmetric(),
                 child: TextFormField(
                   controller: controller,
                   validator:
@@ -59,10 +61,11 @@ class TextAreaGroup extends StatelessWidget {
                         return value!.isEmpty ? errorText : null;
                       },
                   decoration: InputDecoration(
-                    // border: UnderlineInputBorder(),
                     hintText: hintText,
                     floatingLabelBehavior: FloatingLabelBehavior.auto,
                   ),
+                  keyboardType: keyboardType,
+                  inputFormatters: inputFormatters,
                 ),
               ),
             ),
