@@ -1,9 +1,10 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:library_app/widgets/textarea.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:http/http.dart' as http;
+import 'package:html/parser.dart' as html_parser;
 
 class KitaplarSayfasi extends StatefulWidget {
   const KitaplarSayfasi({super.key});
@@ -105,13 +106,32 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                     hintText: isTurkish ? 'Yayınevi' : 'Publisher',
                     errorText: '',
                   ),
-                  TextAreaGroup(
-                    controller: _isbnController,
-                    textType: 'TextFormField',
-                    textHeight: 50,
-                    textWidth: MediaQuery.of(context).size.width,
-                    hintText: 'ISBN',
-                    errorText: '',
+                  // ISBN alanı: TextField'ın sonunda kamera ve search ikonları yanyana
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextAreaGroup(
+                          controller: _isbnController,
+                          textType: 'TextFormField',
+                          textHeight: 50,
+                          textWidth: MediaQuery.of(context).size.width,
+                          hintText: 'ISBN',
+                          errorText: '',
+                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.camera_alt),
+                        tooltip: 'ISBN Barkod Okut',
+                        onPressed: _scanIsbn,
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.search),
+                        tooltip: 'ISBN ile kitap ara',
+                        onPressed: () async {
+                          await _fillBookFieldsFromIsbn(_isbnController.text);
+                        },
+                      ),
+                    ],
                   ),
                   TextAreaGroup(
                     controller: _sayfaSayisiController,
@@ -188,6 +208,42 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
         );
       },
     );
+  }
+
+  Future<void> _fillBookFieldsFromIsbn(String isbn) async {
+    final url =
+        'https://openlibrary.org/api/books?bibkeys=ISBN:$isbn&format=json&jscmd=data';
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final book = data['ISBN:$isbn'];
+      if (book != null) {
+        final title = book['title'] ?? '';
+        final authors = book['authors'] as List<dynamic>?;
+        final author = authors != null && authors.isNotEmpty
+            ? authors[0]['name']
+            : '';
+        final publishers = book['publishers'] as List<dynamic>?;
+        final publisher = publishers != null && publishers.isNotEmpty
+            ? publishers[0]['name']
+            : '';
+        setState(() {
+          _kitapAdiController.text = title;
+          _yazarController.text = author;
+          _yayineviController.text = publisher;
+        });
+      }
+    }
+  }
+
+  Future<void> _scanIsbn() async {
+    var result = await BarcodeScanner.scan();
+    if (result.type == ResultType.Barcode) {
+      setState(() {
+        _isbnController.text = result.rawContent;
+      });
+      await _fillBookFieldsFromIsbn(result.rawContent);
+    }
   }
 
   @override
@@ -313,15 +369,36 @@ class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
                                             : 'Publisher',
                                         errorText: '',
                                       ),
-                                      TextAreaGroup(
-                                        controller: _isbnController,
-                                        textType: 'TextFormField',
-                                        textHeight: 50,
-                                        textWidth: MediaQuery.of(
-                                          context,
-                                        ).size.width,
-                                        hintText: 'ISBN',
-                                        errorText: '',
+                                      // ISBN alanı: TextField'ın sonunda kamera ve search ikonları yanyana
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextAreaGroup(
+                                              controller: _isbnController,
+                                              textType: 'TextFormField',
+                                              textHeight: 50,
+                                              textWidth: MediaQuery.of(
+                                                context,
+                                              ).size.width,
+                                              hintText: 'ISBN',
+                                              errorText: '',
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.camera_alt),
+                                            tooltip: 'ISBN Barkod Okut',
+                                            onPressed: _scanIsbn,
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.search),
+                                            tooltip: 'ISBN ile kitap ara',
+                                            onPressed: () async {
+                                              await _fillBookFieldsFromIsbn(
+                                                _isbnController.text,
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       ),
                                       TextAreaGroup(
                                         controller: _sayfaSayisiController,
