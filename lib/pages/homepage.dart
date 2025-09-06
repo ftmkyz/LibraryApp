@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:library_app/pages/kitaplar.dart';
+import 'package:library_app/pages/books.dart';
 import 'package:library_app/pages/wishlist.dart';
 import 'package:library_app/pages/edit_profile.dart';
 
@@ -122,25 +122,13 @@ class _HomePageState extends State<HomePage>
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.grey[900]
-                    : Colors.blue[100],
-              ),
+              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircleAvatar(
-                    radius: 32,
-                    backgroundImage: AssetImage('assets/profile.jpg'),
-                    backgroundColor: Colors.transparent,
-                    onBackgroundImageError:
-                        (_, __) {}, // If image not found, show empty avatar
-                    child: null, // No child, so empty if image not found
-                  ),
                   SizedBox(height: 12),
                   Text(
-                    isTurkish ? "Menü" : "Menu",
+                    isTurkish ? 'Kitaplık Uygulaması' : 'Library App',
                     style: TextStyle(
                       color: Theme.of(context).brightness == Brightness.dark
                           ? Colors.white
@@ -180,7 +168,7 @@ class _HomePageState extends State<HomePage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          KitaplarSayfasi(),
+          BooksPage(),
           WishlistPage(locale: widget.locale),
         ],
       ),

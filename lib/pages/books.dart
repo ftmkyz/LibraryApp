@@ -1,19 +1,20 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:library_app/widgets/textarea.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:http/http.dart' as http;
-import 'package:html/parser.dart' as html_parser;
 import 'package:flutter/services.dart';
 
-class KitaplarSayfasi extends StatefulWidget {
-  const KitaplarSayfasi({super.key});
+class BooksPage extends StatefulWidget {
+  const BooksPage({super.key});
   @override
-  State<KitaplarSayfasi> createState() => _KitaplarSayfasiState();
+  State<BooksPage> createState() => _BooksPageState();
 }
 
-class _KitaplarSayfasiState extends State<KitaplarSayfasi> {
+class _BooksPageState extends State<BooksPage> {
   final _formKey = GlobalKey<FormState>();
   final _kitapAdiController = TextEditingController();
   final _yazarController = TextEditingController();
