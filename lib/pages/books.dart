@@ -26,7 +26,7 @@ class _BooksPageState extends State<BooksPage> {
   bool _tamamlandi = false;
 
   List<Map<String, String>> kitapListesi = [];
-
+  List<Map<String, String>> wishlist = [];
   String _searchText = '';
   bool _showSearchField = false;
   String _filterType = 'all';
@@ -44,6 +44,14 @@ class _BooksPageState extends State<BooksPage> {
       setState(() {
         kitapListesi = List<Map<String, String>>.from(
           json.decode(kitapJson).map((e) => Map<String, String>.from(e)),
+        );
+      });
+    }
+    final String? wishlistJson = prefs.getString('wishlist');
+    if (wishlistJson != null) {
+      setState(() {
+        wishlist = List<Map<String, String>>.from(
+          json.decode(wishlistJson).map((e) => Map<String, String>.from(e)),
         );
       });
     }
@@ -515,6 +523,45 @@ class _BooksPageState extends State<BooksPage> {
                                   ElevatedButton(
                                     onPressed: () {
                                       if (addFormKey.currentState!.validate()) {
+                                        final newIsbn = _isbnController.text
+                                            .trim();
+                                        final isbnExist = wishlist.any(
+                                          (kitap) => kitap["isbn"] == newIsbn,
+                                        );
+
+                                        final isbnExistbooks = kitapListesi.any(
+                                          (kitap) => kitap["isbn"] == newIsbn,
+                                        );
+                                        if (isbnExist) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                isTurkish
+                                                    ? "Bu ISBN zaten eklenmiş!"
+                                                    : "This ISBN is already added!",
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        if (isbnExistbooks) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                isTurkish
+                                                    ? "Bu ISBN zaten eklenmiş!"
+                                                    : "This ISBN is already added!",
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                          return;
+                                        }
                                         setState(() {
                                           kitapListesi.add({
                                             "kitapAdi":

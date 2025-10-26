@@ -3,6 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'package:barcode_scan2/barcode_scan2.dart';
+import 'package:http/http.dart' as http;
+import 'package:library_app/widgets/textarea.dart';
 
 class WishlistPage extends StatefulWidget {
   final Locale? locale;
@@ -19,6 +22,7 @@ class _WishlistPageState extends State<WishlistPage> {
   final _yayineviController = TextEditingController();
   final _isbnController = TextEditingController();
   List<Map<String, String>> wishlist = [];
+  List<Map<String, String>> kitapListesi = [];
   String _searchText = '';
   bool _showSearchField = false;
 
@@ -28,6 +32,42 @@ class _WishlistPageState extends State<WishlistPage> {
     _loadWishlist();
   }
 
+  Future<void> _fillBookFieldsFromIsbn(String isbn) async {
+    final url =
+        'https://openlibrary.org/api/books?bibkeys=ISBN:$isbn&format=json&jscmd=data';
+    final response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final book = data['ISBN:$isbn'];
+      if (book != null) {
+        final title = book['title'] ?? '';
+        final authors = book['authors'] as List<dynamic>?;
+        final author = authors != null && authors.isNotEmpty
+            ? authors[0]['name']
+            : '';
+        final publishers = book['publishers'] as List<dynamic>?;
+        final publisher = publishers != null && publishers.isNotEmpty
+            ? publishers[0]['name']
+            : '';
+        setState(() {
+          _kitapAdiController.text = title;
+          _yazarController.text = author;
+          _yayineviController.text = publisher;
+        });
+      }
+    }
+  }
+
+  Future<void> _scanIsbn() async {
+    var result = await BarcodeScanner.scan();
+    if (result.type == ResultType.Barcode) {
+      setState(() {
+        _isbnController.text = result.rawContent;
+      });
+      await _fillBookFieldsFromIsbn(result.rawContent);
+    }
+  }
+
   Future<void> _loadWishlist() async {
     final prefs = await SharedPreferences.getInstance();
     final String? wishlistJson = prefs.getString('wishlist');
@@ -35,6 +75,14 @@ class _WishlistPageState extends State<WishlistPage> {
       setState(() {
         wishlist = List<Map<String, String>>.from(
           json.decode(wishlistJson).map((e) => Map<String, String>.from(e)),
+        );
+      });
+    }
+    final String? kitapJson = prefs.getString('kitapListesi');
+    if (kitapJson != null) {
+      setState(() {
+        kitapListesi = List<Map<String, String>>.from(
+          json.decode(kitapJson).map((e) => Map<String, String>.from(e)),
         );
       });
     }
@@ -144,7 +192,25 @@ class _WishlistPageState extends State<WishlistPage> {
             ),
             ElevatedButton(
               onPressed: () {
+                // <-- async ekle!
                 if (editFormKey.currentState!.validate()) {
+                  final yeniIsbn = _isbnController.text.trim();
+                  final isbnVar = wishlist.any(
+                    (kitap) => kitap["isbn"] == yeniIsbn,
+                  );
+                  if (isbnVar) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isTurkish
+                              ? "Bu ISBN zaten eklenmiş!"
+                              : "This ISBN is already added!",
+                        ),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                    return;
+                  }
                   setState(() {
                     wishlist[index] = {
                       "kitapAdi": _kitapAdiController.text,
@@ -158,6 +224,7 @@ class _WishlistPageState extends State<WishlistPage> {
                   _yazarController.clear();
                   _yayineviController.clear();
                   _isbnController.clear();
+                  // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                 }
               },
@@ -261,11 +328,35 @@ class _WishlistPageState extends State<WishlistPage> {
                                               : 'Publisher',
                                         ),
                                       ),
-                                      TextFormField(
-                                        controller: _isbnController,
-                                        decoration: InputDecoration(
-                                          labelText: 'ISBN',
-                                        ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextAreaGroup(
+                                              controller: _isbnController,
+                                              textType: 'TextFormField',
+                                              textHeight: 50,
+                                              textWidth: MediaQuery.of(
+                                                context,
+                                              ).size.width,
+                                              hintText: 'ISBN',
+                                              errorText: '',
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.camera_alt),
+                                            tooltip: 'ISBN Barkod Okut',
+                                            onPressed: _scanIsbn,
+                                          ),
+                                          IconButton(
+                                            icon: Icon(Icons.search),
+                                            tooltip: 'ISBN ile kitap ara',
+                                            onPressed: () async {
+                                              await _fillBookFieldsFromIsbn(
+                                                _isbnController.text,
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),
@@ -285,6 +376,45 @@ class _WishlistPageState extends State<WishlistPage> {
                                 ElevatedButton(
                                   onPressed: () {
                                     if (addFormKey.currentState!.validate()) {
+                                      final newIsbn = _isbnController.text
+                                          .trim();
+                                      final isbnExist = wishlist.any(
+                                        (kitap) => kitap["isbn"] == newIsbn,
+                                      );
+
+                                      final isbnExistbooks = kitapListesi.any(
+                                        (kitap) => kitap["isbn"] == newIsbn,
+                                      );
+                                      if (isbnExist) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              isTurkish
+                                                  ? "Bu ISBN zaten eklenmiş!"
+                                                  : "This ISBN is already added!",
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                        return;
+                                      }
+                                      if (isbnExistbooks) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              isTurkish
+                                                  ? "Bu ISBN zaten eklenmiş!"
+                                                  : "This ISBN is already added!",
+                                            ),
+                                            backgroundColor: Colors.red,
+                                          ),
+                                        );
+                                        return;
+                                      }
                                       setState(() {
                                         wishlist.add({
                                           "kitapAdi": _kitapAdiController.text,
