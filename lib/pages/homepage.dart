@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:library_app/pages/books.dart';
 import 'package:library_app/pages/wishlist.dart';
-import 'package:library_app/pages/edit_profile.dart';
+import '../main.dart'; // AppTheme enum'unu alabilmek için
 
 class HomePage extends StatefulWidget {
   final Locale? locale;
   final ValueChanged<Locale>? onLocaleChange;
-  final bool isDarkTheme;
-  final ValueChanged<bool>? onThemeToggle;
+  final AppTheme currentTheme;
+  final ValueChanged<AppTheme>? onThemeChange;
+
   const HomePage({
     super.key,
     this.locale,
     this.onLocaleChange,
-    this.isDarkTheme = false,
-    this.onThemeToggle,
+    required this.currentTheme,
+    this.onThemeChange,
   });
+
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -36,6 +38,7 @@ class _HomePageState extends State<HomePage>
       appBar: AppBar(
         title: Text(isTurkish ? 'Kitaplarım' : 'My Books'),
         actions: [
+          /// Dil değiştirme menüsü
           DropdownButton<Locale>(
             value: widget.locale ?? const Locale('tr'),
             dropdownColor: Theme.of(context).canvasColor,
@@ -47,44 +50,30 @@ class _HomePageState extends State<HomePage>
             },
             items: [
               DropdownMenuItem(
-                value: Locale('en'),
+                value: const Locale('en'),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.translate,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white
-                          : Theme.of(context).iconTheme.color,
-                    ),
-                    SizedBox(width: 8),
+                    // const Icon(Icons.translate),
+                    const SizedBox(width: 8),
                     Text(
                       'English',
                       style: TextStyle(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.black,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
                 ),
               ),
               DropdownMenuItem(
-                value: Locale('tr'),
+                value: const Locale('tr'),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.translate,
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white
-                          : Theme.of(context).iconTheme.color,
-                    ),
-                    SizedBox(width: 8),
+                    // const Icon(Icons.translate),
+                    const SizedBox(width: 8),
                     Text(
                       'Türkçe',
                       style: TextStyle(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? Colors.white
-                            : Colors.black,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -92,83 +81,61 @@ class _HomePageState extends State<HomePage>
               ),
             ],
           ),
-          IconButton(
-            icon: Icon(
-              widget.isDarkTheme
-                  ? Icons.dark_mode_outlined
-                  : Icons.light_mode_outlined,
-              color: Theme.of(context).iconTheme.color,
+
+          /// Tema seçimi (renk temaları)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: DropdownButton<AppTheme>(
+              value: AppTheme.values.contains(widget.currentTheme)
+                  ? widget.currentTheme
+                  : AppTheme.light,
+              underline: const SizedBox(),
+              dropdownColor: Theme.of(context).canvasColor,
+              // icon: const Icon(Icons.palette_outlined),
+              onChanged: (AppTheme? newTheme) {
+                if (newTheme != null && widget.onThemeChange != null) {
+                  widget.onThemeChange!(newTheme);
+                }
+              },
+              items: [
+                DropdownMenuItem(
+                  value: AppTheme.light,
+                  child: Icon(Icons.wb_sunny, color: Colors.amber),
+                ),
+                DropdownMenuItem(
+                  value: AppTheme.dark,
+                  child: Icon(Icons.nightlight_round, color: Colors.deepPurple),
+                ),
+                DropdownMenuItem(
+                  value: AppTheme.lavender,
+                  child: Icon(Icons.blur_on, color: Color(0xFFB388EB)),
+                ),
+                DropdownMenuItem(
+                  value: AppTheme.sunset,
+                  child: Icon(Icons.wb_twilight, color: Color(0xFFFF7043)),
+                ),
+                DropdownMenuItem(
+                  value: AppTheme.olive,
+                  child: Icon(Icons.eco, color: Color(0xFF8BC34A)),
+                ),
+              ],
             ),
-            tooltip: widget.isDarkTheme
-                ? (isTurkish ? 'Açık Tema' : 'Light Theme')
-                : (isTurkish ? 'Koyu Tema' : 'Dark Theme'),
-            onPressed: () {
-              if (widget.onThemeToggle != null) {
-                widget.onThemeToggle!(!widget.isDarkTheme);
-              }
-            },
           ),
         ],
+
         bottom: TabBar(
           controller: _tabController,
           tabs: [
             Tab(text: isTurkish ? "Kitaplığım" : "My Books"),
-            Tab(text: isTurkish ? "Alınacak listesi" : "Wishlist"),
+            Tab(text: isTurkish ? "Alınacak Listesi" : "Wishlist"),
           ],
         ),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            DrawerHeader(
-              decoration: BoxDecoration(color: Theme.of(context).primaryColor),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(height: 12),
-                  Text(
-                    isTurkish ? 'Kitaplık Uygulaması' : 'Library App',
-                    style: TextStyle(
-                      color: Theme.of(context).brightness == Brightness.dark
-                          ? Colors.white
-                          : Colors.black,
-                      fontSize: 24,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            ListTile(
-              title: Text(isTurkish ? "Kitaplığım" : "My Books"),
-              onTap: () {
-                _tabController.animateTo(0);
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text(isTurkish ? "Alınacak listesi" : "Wishlist"),
-              onTap: () {
-                _tabController.animateTo(1);
-                Navigator.pop(context);
-              },
-            ),
-            ListTile(
-              title: Text(isTurkish ? "Profili Düzenle" : "Edit Profile"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => EditProfilePage()),
-                );
-              },
-            ),
-          ],
-        ),
-      ),
+
       body: TabBarView(
         controller: _tabController,
         children: [
-          BooksPage(),
+          const BooksPage(),
           WishlistPage(locale: widget.locale),
         ],
       ),
