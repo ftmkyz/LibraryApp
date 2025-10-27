@@ -138,11 +138,15 @@ class _WishlistPageState extends State<WishlistPage> {
     _isbnController.text = kitap["isbn"] ?? "";
     final editFormKey = GlobalKey<FormState>();
     final isTurkish = widget.locale?.languageCode == 'tr';
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(isTurkish ? "Kitap Düzenle" : "Edit Book"),
+          title: Text(
+            isTurkish ? "Kitap Düzenle" : "Edit Book",
+            style: TextStyle(color: theme.colorScheme.onSurface),
+          ),
           content: SingleChildScrollView(
             child: Form(
               key: editFormKey,
@@ -188,29 +192,32 @@ class _WishlistPageState extends State<WishlistPage> {
                 _isbnController.clear();
                 Navigator.pop(context);
               },
-              child: Text(isTurkish ? "İptal" : "Cancel"),
+              child: Text(
+                isTurkish ? "İptal" : "Cancel",
+                style: TextStyle(color: theme.colorScheme.onSurface),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
                 // <-- async ekle!
                 if (editFormKey.currentState!.validate()) {
-                  final yeniIsbn = _isbnController.text.trim();
-                  final isbnVar = wishlist.any(
-                    (kitap) => kitap["isbn"] == yeniIsbn,
-                  );
-                  if (isbnVar) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          isTurkish
-                              ? "Bu ISBN zaten eklenmiş!"
-                              : "This ISBN is already added!",
-                        ),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                    return;
-                  }
+                  // final yeniIsbn = _isbnController.text.trim();
+                  // final isbnVar = wishlist.any(
+                  //   (kitap) => kitap["isbn"] == yeniIsbn,
+                  // );
+                  // if (isbnVar) {
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(
+                  //       content: Text(
+                  //         isTurkish
+                  //             ? "Bu ISBN zaten eklenmiş!"
+                  //             : "This ISBN is already added!",
+                  //       ),
+                  //       backgroundColor: Colors.red,
+                  //     ),
+                  //   );
+                  //   return;
+                  // }
                   setState(() {
                     wishlist[index] = {
                       "kitapAdi": _kitapAdiController.text,
@@ -228,7 +235,10 @@ class _WishlistPageState extends State<WishlistPage> {
                   Navigator.pop(context);
                 }
               },
-              child: Text(isTurkish ? "Kaydet" : "Save"),
+              child: Text(
+                isTurkish ? "Kaydet" : "Save",
+                style: TextStyle(color: theme.colorScheme.onSurface),
+              ),
             ),
           ],
         );
@@ -239,6 +249,7 @@ class _WishlistPageState extends State<WishlistPage> {
   @override
   Widget build(BuildContext context) {
     final isTurkish = widget.locale?.languageCode == 'tr';
+    final theme = Theme.of(context);
     return Column(
       children: [
         Form(
@@ -250,194 +261,287 @@ class _WishlistPageState extends State<WishlistPage> {
                 Row(
                   children: [
                     Expanded(
-                      child: _showSearchField
-                          ? SizedBox(
-                              width: 200,
-                              child: TextField(
-                                decoration: InputDecoration(
-                                  labelText: isTurkish
-                                      ? 'İsteklerde Ara'
-                                      : 'Search Wishlist',
-                                ),
-                                onChanged: (value) {
-                                  setState(() {
-                                    _searchText = value;
-                                  });
-                                },
-                              ),
-                            )
-                          : SizedBox.shrink(),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.search,
-                        color: Theme.of(context).primaryColor,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _showSearchField = !_showSearchField;
-                        });
-                      },
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.add,
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                      onPressed: () {
-                        final isTurkish = widget.locale?.languageCode == 'tr';
-                        final addFormKey = GlobalKey<FormState>();
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              title: Text(
-                                isTurkish ? "İstek Ekle" : "Add Wishlist Item",
-                              ),
-                              content: SingleChildScrollView(
-                                child: Form(
-                                  key: addFormKey,
-                                  child: Column(
-                                    children: [
-                                      TextFormField(
-                                        controller: _kitapAdiController,
-                                        decoration: InputDecoration(
-                                          labelText: isTurkish
-                                              ? 'Kitap Adı'
-                                              : 'Book Name',
-                                        ),
-                                        validator: (value) => value!.isEmpty
-                                            ? (isTurkish
-                                                  ? 'Kitap adı gerekli'
-                                                  : 'Book name required')
-                                            : null,
-                                      ),
-                                      TextFormField(
-                                        controller: _yazarController,
-                                        decoration: InputDecoration(
-                                          labelText: isTurkish
-                                              ? 'Yazar Adı'
-                                              : 'Author',
-                                        ),
-                                      ),
-                                      TextFormField(
-                                        controller: _yayineviController,
-                                        decoration: InputDecoration(
-                                          labelText: isTurkish
-                                              ? 'Yayınevi'
-                                              : 'Publisher',
-                                        ),
-                                      ),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: TextAreaGroup(
-                                              controller: _isbnController,
-                                              textType: 'TextFormField',
-                                              textHeight: 50,
-                                              textWidth: MediaQuery.of(
-                                                context,
-                                              ).size.width,
-                                              hintText: 'ISBN',
-                                              errorText: '',
-                                            ),
-                                          ),
-                                          IconButton(
-                                            icon: Icon(Icons.camera_alt),
-                                            tooltip: 'ISBN Barkod Okut',
-                                            onPressed: _scanIsbn,
-                                          ),
-                                          IconButton(
-                                            icon: Icon(Icons.search),
-                                            tooltip: 'ISBN ile kitap ara',
-                                            onPressed: () async {
-                                              await _fillBookFieldsFromIsbn(
-                                                _isbnController.text,
-                                              );
-                                            },
-                                          ),
-                                        ],
+                      child: AnimatedSwitcher(
+                        duration: Duration(milliseconds: 300),
+                        transitionBuilder: (child, animation) {
+                          return SizeTransition(
+                            sizeFactor: animation,
+                            axis: Axis.horizontal,
+                            child: FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: _showSearchField
+                            ? SizedBox(
+                                key: const ValueKey(1),
+                                child: Container(
+                                  margin: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: theme.cardColor,
+                                    borderRadius: BorderRadius.circular(18),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        // color: isDark
+                                        //     ? Colors.black54
+                                        //     : Colors.grey.withOpacity(0.3),
+                                        blurRadius: 8,
+                                        spreadRadius: 0,
+                                        // offset: Offset(0, 4),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    _kitapAdiController.clear();
-                                    _yazarController.clear();
-                                    _yayineviController.clear();
-                                    _isbnController.clear();
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(isTurkish ? "İptal" : "Cancel"),
-                                ),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    if (addFormKey.currentState!.validate()) {
-                                      final newIsbn = _isbnController.text
-                                          .trim();
-                                      final isbnExist = wishlist.any(
-                                        (kitap) => kitap["isbn"] == newIsbn,
-                                      );
-
-                                      final isbnExistbooks = kitapListesi.any(
-                                        (kitap) => kitap["isbn"] == newIsbn,
-                                      );
-                                      if (isbnExist) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              isTurkish
-                                                  ? "Bu ISBN zaten eklenmiş!"
-                                                  : "This ISBN is already added!",
-                                            ),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
-                                        return;
-                                      }
-                                      if (isbnExistbooks) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              isTurkish
-                                                  ? "Bu ISBN zaten eklenmiş!"
-                                                  : "This ISBN is already added!",
-                                            ),
-                                            backgroundColor: Colors.red,
-                                          ),
-                                        );
-                                        return;
-                                      }
+                                  child: TextField(
+                                    key: const ValueKey(1),
+                                    decoration: InputDecoration(
+                                      labelText: isTurkish
+                                          ? 'İsteklerde Ara'
+                                          : 'Search Wishlist',
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: 8,
+                                        horizontal: 12,
+                                      ),
+                                      border: InputBorder.none,
+                                    ),
+                                    style: TextStyle(fontSize: 16),
+                                    onChanged: (value) {
                                       setState(() {
-                                        wishlist.add({
-                                          "kitapAdi": _kitapAdiController.text,
-                                          "yazar": _yazarController.text,
-                                          "yayinevi": _yayineviController.text,
-                                          "isbn": _isbnController.text,
-                                        });
+                                        _searchText = value;
                                       });
-                                      _saveWishlist();
+                                    },
+                                  ),
+                                ),
+                              )
+                            : SizedBox(key: ValueKey(2)),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.black26
+                                : Colors.grey.withOpacity(0.15),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.search_outlined,
+                          // color: Theme.of(context).primaryColor,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showSearchField = !_showSearchField;
+                          });
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.black26
+                                : Colors.grey.withOpacity(0.15),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.add,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        onPressed: () {
+                          final isTurkish = widget.locale?.languageCode == 'tr';
+                          final addFormKey = GlobalKey<FormState>();
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text(
+                                  isTurkish
+                                      ? "İstek Ekle"
+                                      : "Add Wishlist Item",
+                                  style: TextStyle(
+                                    fontSize: 26,
+                                    fontFamily: 'BebasNeue', //??
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                                content: SingleChildScrollView(
+                                  child: Form(
+                                    key: addFormKey,
+                                    child: Column(
+                                      children: [
+                                        TextFormField(
+                                          controller: _kitapAdiController,
+                                          decoration: InputDecoration(
+                                            labelText: isTurkish
+                                                ? 'Kitap Adı'
+                                                : 'Book Name',
+                                          ),
+                                          validator: (value) => value!.isEmpty
+                                              ? (isTurkish
+                                                    ? 'Kitap adı gerekli'
+                                                    : 'Book name required')
+                                              : null,
+                                        ),
+                                        TextFormField(
+                                          controller: _yazarController,
+                                          decoration: InputDecoration(
+                                            labelText: isTurkish
+                                                ? 'Yazar Adı'
+                                                : 'Author',
+                                          ),
+                                        ),
+                                        TextFormField(
+                                          controller: _yayineviController,
+                                          decoration: InputDecoration(
+                                            labelText: isTurkish
+                                                ? 'Yayınevi'
+                                                : 'Publisher',
+                                          ),
+                                        ),
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: TextAreaGroup(
+                                                controller: _isbnController,
+                                                textType: 'TextFormField',
+                                                textHeight: 50,
+                                                textWidth: MediaQuery.of(
+                                                  context,
+                                                ).size.width,
+                                                hintText: 'ISBN',
+                                                errorText: '',
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: Icon(Icons.camera_alt),
+                                              tooltip: 'ISBN Barkod Okut',
+                                              onPressed: _scanIsbn,
+                                            ),
+                                            IconButton(
+                                              icon: Icon(Icons.search),
+                                              tooltip: 'ISBN ile kitap ara',
+                                              onPressed: () async {
+                                                await _fillBookFieldsFromIsbn(
+                                                  _isbnController.text,
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
                                       _kitapAdiController.clear();
                                       _yazarController.clear();
                                       _yayineviController.clear();
                                       _isbnController.clear();
                                       Navigator.pop(context);
-                                    }
-                                  },
-                                  child: Text(isTurkish ? "Ekle" : "Add"),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
+                                    },
+                                    child: Text(
+                                      isTurkish ? "İptal" : "Cancel",
+                                      style: TextStyle(
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      if (addFormKey.currentState!.validate()) {
+                                        final newIsbn = _isbnController.text
+                                            .trim();
+                                        final isbnExist = wishlist.any(
+                                          (kitap) => kitap["isbn"] == newIsbn,
+                                        );
+
+                                        final isbnExistbooks = kitapListesi.any(
+                                          (kitap) => kitap["isbn"] == newIsbn,
+                                        );
+                                        if (isbnExist) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                isTurkish
+                                                    ? "Bu ISBN zaten eklenmiş!"
+                                                    : "This ISBN is already added!",
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        if (isbnExistbooks) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                isTurkish
+                                                    ? "Bu ISBN zaten eklenmiş!"
+                                                    : "This ISBN is already added!",
+                                              ),
+                                              backgroundColor: Colors.red,
+                                            ),
+                                          );
+                                          return;
+                                        }
+                                        setState(() {
+                                          wishlist.add({
+                                            "kitapAdi":
+                                                _kitapAdiController.text,
+                                            "yazar": _yazarController.text,
+                                            "yayinevi":
+                                                _yayineviController.text,
+                                            "isbn": _isbnController.text,
+                                          });
+                                        });
+                                        _saveWishlist();
+                                        _kitapAdiController.clear();
+                                        _yazarController.clear();
+                                        _yayineviController.clear();
+                                        _isbnController.clear();
+                                        Navigator.pop(context);
+                                      }
+                                    },
+                                    child: Text(
+                                      isTurkish ? "Ekle" : "Add",
+                                      style: TextStyle(
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -526,7 +630,7 @@ class _WishlistPageState extends State<WishlistPage> {
                           IconButton(
                             icon: Icon(
                               Icons.add,
-                              color: theme.colorScheme.secondary,
+                              color: theme.colorScheme.onSurface,
                             ),
                             tooltip: isTurkish
                                 ? "Kitaplara Ekle"
@@ -536,7 +640,7 @@ class _WishlistPageState extends State<WishlistPage> {
                           IconButton(
                             icon: Icon(
                               Icons.edit,
-                              color: theme.colorScheme.secondary,
+                              color: theme.colorScheme.onSurface,
                             ),
                             tooltip: isTurkish ? "Düzenle" : "Edit",
                             onPressed: () => _editWishlistBook(index),
@@ -544,7 +648,7 @@ class _WishlistPageState extends State<WishlistPage> {
                           IconButton(
                             icon: Icon(
                               Icons.close,
-                              color: isDark ? Colors.red[300] : Colors.red,
+                              color: theme.colorScheme.error,
                             ),
                             tooltip: isTurkish ? "Sil" : "Delete",
                             onPressed: () => _deleteWishlistBook(index),

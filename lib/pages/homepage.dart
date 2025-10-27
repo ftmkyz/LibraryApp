@@ -34,6 +34,7 @@ class _HomePageState extends State<HomePage>
   @override
   Widget build(BuildContext context) {
     final isTurkish = widget.locale?.languageCode == 'tr';
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Text(isTurkish ? 'Kitaplarım' : 'My Books'),
@@ -100,15 +101,24 @@ class _HomePageState extends State<HomePage>
               items: [
                 DropdownMenuItem(
                   value: AppTheme.light,
-                  child: Icon(Icons.wb_sunny, color: Colors.amber),
+                  child: Icon(
+                    Icons.blur_on,
+                    color: const Color.fromARGB(255, 184, 182, 175),
+                  ),
                 ),
                 DropdownMenuItem(
                   value: AppTheme.dark,
-                  child: Icon(Icons.nightlight_round, color: Colors.deepPurple),
+                  child: Icon(
+                    Icons.blur_on,
+                    color: const Color.fromARGB(255, 67, 67, 69),
+                  ),
                 ),
                 DropdownMenuItem(
-                  value: AppTheme.lavender,
-                  child: Icon(Icons.blur_on, color: Color(0xFFB388EB)),
+                  value: AppTheme.luna,
+                  child: Icon(
+                    Icons.blur_on,
+                    color: Color.fromARGB(255, 91, 160, 240),
+                  ),
                 ),
                 DropdownMenuItem(
                   value: AppTheme.sunset,
@@ -125,6 +135,9 @@ class _HomePageState extends State<HomePage>
 
         bottom: TabBar(
           controller: _tabController,
+          labelColor: theme.colorScheme.onSurface, // seçili tab yazı rengi
+          // ignore: deprecated_member_use
+          unselectedLabelColor: theme.colorScheme.error,
           tabs: [
             Tab(text: isTurkish ? "Kitaplığım" : "My Books"),
             Tab(text: isTurkish ? "Alınacak Listesi" : "Wishlist"),

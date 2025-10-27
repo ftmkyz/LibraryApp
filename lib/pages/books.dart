@@ -80,11 +80,15 @@ class _BooksPageState extends State<BooksPage> {
     final editFormKey = GlobalKey<FormState>();
     final inheritedLocale = Localizations.localeOf(context);
     final isTurkish = inheritedLocale.languageCode == 'tr';
+    final theme = Theme.of(context);
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(isTurkish ? "Kitap Düzenle" : "Edit Book"),
+          title: Text(
+            isTurkish ? "Kitap Düzenle" : "Edit Book",
+            style: TextStyle(color: theme.colorScheme.onSurface),
+          ),
           content: SingleChildScrollView(
             child: Form(
               key: editFormKey,
@@ -190,7 +194,10 @@ class _BooksPageState extends State<BooksPage> {
                 _okunanSayfaController.clear();
                 Navigator.pop(context);
               },
-              child: Text(isTurkish ? "İptal" : "Cancel"),
+              child: Text(
+                isTurkish ? "İptal" : "Cancel",
+                style: TextStyle(color: theme.colorScheme.onSurface),
+              ),
             ),
             ElevatedButton(
               onPressed: () {
@@ -216,7 +223,10 @@ class _BooksPageState extends State<BooksPage> {
                   Navigator.pop(context);
                 }
               },
-              child: Text(isTurkish ? "Kaydet" : "Save"),
+              child: Text(
+                isTurkish ? "Kaydet" : "Save",
+                style: TextStyle(color: theme.colorScheme.onSurface),
+              ),
             ),
           ],
         );
@@ -265,6 +275,8 @@ class _BooksPageState extends State<BooksPage> {
     // Get locale from parent (HomePage)
     final inheritedLocale = Localizations.localeOf(context);
     final isTurkish = inheritedLocale.languageCode == 'tr';
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Column(
       children: [
         Form(
@@ -292,35 +304,41 @@ class _BooksPageState extends State<BooksPage> {
                         },
                         child: _showSearchField
                             ? Container(
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).cardColor,
-                                  borderRadius: BorderRadius.circular(14),
+                                  color: theme.cardColor,
+                                  borderRadius: BorderRadius.circular(18),
                                   boxShadow: [
                                     BoxShadow(
-                                      color:
-                                          Theme.of(context).brightness ==
-                                              Brightness.dark
-                                          ? Colors.black26
-                                          : Colors.grey.withOpacity(0.15),
-                                      blurRadius: 6,
-                                      offset: Offset(0, 2),
+                                      // color: isDark
+                                      //     ? Colors.black54
+                                      //     : Colors.grey.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      spreadRadius: 0,
+                                      // offset: Offset(0, 4),
                                     ),
                                   ],
                                 ),
+
                                 child: TextField(
-                                  key: ValueKey(1),
+                                  key: const ValueKey(1),
                                   decoration: InputDecoration(
                                     hintText: isTurkish
                                         ? 'Kitaplarda Ara'
                                         : 'Search Books',
-                                    isDense: true,
-                                    contentPadding: EdgeInsets.symmetric(
-                                      vertical: 8,
-                                      horizontal: 12,
-                                    ),
                                     border: InputBorder.none,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 10,
+                                    ),
                                   ),
-                                  style: TextStyle(fontSize: 16),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
                                   onChanged: (value) {
                                     setState(() {
                                       _searchText = value;
@@ -350,7 +368,8 @@ class _BooksPageState extends State<BooksPage> {
                       child: IconButton(
                         icon: Icon(
                           Icons.search_outlined,
-                          color: Theme.of(context).primaryColor,
+                          // color: Theme.of(context).primaryColor,
+                          color: theme.colorScheme.onSurface,
                         ),
                         onPressed: () {
                           setState(() {
@@ -379,7 +398,7 @@ class _BooksPageState extends State<BooksPage> {
                       child: IconButton(
                         icon: Icon(
                           Icons.add,
-                          color: Theme.of(context).colorScheme.secondary,
+                          color: theme.colorScheme.onSurface,
                         ),
                         onPressed: () {
                           final inheritedLocale = Localizations.localeOf(
@@ -394,6 +413,11 @@ class _BooksPageState extends State<BooksPage> {
                               return AlertDialog(
                                 title: Text(
                                   isTurkish ? "Kitap Ekle" : "Add Book",
+                                  style: TextStyle(
+                                    fontSize: 26,
+                                    fontFamily: 'BebasNeue', //??
+                                    color: theme.colorScheme.onSurface,
+                                  ),
                                 ),
                                 content: SingleChildScrollView(
                                   child: Form(
@@ -518,7 +542,12 @@ class _BooksPageState extends State<BooksPage> {
                                       _okunanSayfaController.clear();
                                       Navigator.pop(context);
                                     },
-                                    child: Text(isTurkish ? "İptal" : "Cancel"),
+                                    child: Text(
+                                      isTurkish ? "İptal" : "Cancel",
+                                      style: TextStyle(
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                    ),
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
@@ -586,7 +615,12 @@ class _BooksPageState extends State<BooksPage> {
                                         Navigator.pop(context);
                                       }
                                     },
-                                    child: Text(isTurkish ? "Ekle" : "Add"),
+                                    child: Text(
+                                      isTurkish ? "Ekle" : "Add",
+                                      style: TextStyle(
+                                        color: theme.colorScheme.onSurface,
+                                      ),
+                                    ),
                                   ),
                                 ],
                               );
@@ -607,23 +641,48 @@ class _BooksPageState extends State<BooksPage> {
                       items: [
                         DropdownMenuItem(
                           value: 'all',
-                          child: Text(isTurkish ? 'Tüm Kitaplar' : 'All'),
+                          child: Text(
+                            isTurkish ? 'Tüm Kitaplar' : 'All',
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
                         ),
                         DropdownMenuItem(
                           value: 'read',
-                          child: Text(isTurkish ? 'Okunanlar' : 'Read'),
+                          child: Text(
+                            isTurkish ? 'Okunanlar' : 'Read',
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
                         ),
                         DropdownMenuItem(
                           value: 'unread',
-                          child: Text(isTurkish ? 'Okunmayanlar' : 'Unread'),
+                          child: Text(
+                            isTurkish ? 'Okunmayanlar' : 'Unread',
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
                         ),
                         DropdownMenuItem(
                           value: 'az',
-                          child: Text(isTurkish ? 'A-Z' : 'A-Z'),
+                          child: Text(
+                            isTurkish ? 'A-Z' : 'A-Z',
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
                         ),
                         DropdownMenuItem(
                           value: 'za',
-                          child: Text(isTurkish ? 'Z-A' : 'Z-A'),
+                          child: Text(
+                            isTurkish ? 'Z-A' : 'Z-A',
+                            style: TextStyle(
+                              color: theme.colorScheme.onSurface,
+                            ),
+                          ),
                         ),
                       ],
                       onChanged: (val) {
@@ -676,8 +735,7 @@ class _BooksPageState extends State<BooksPage> {
                 itemCount: filteredList.length,
                 itemBuilder: (context, index) {
                   final kitap = filteredList[index];
-                  final theme = Theme.of(context);
-                  final isDark = theme.brightness == Brightness.dark;
+
                   return Container(
                     margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     decoration: BoxDecoration(
@@ -699,7 +757,10 @@ class _BooksPageState extends State<BooksPage> {
                         horizontal: 16,
                         vertical: 12,
                       ),
-                      leading: Icon(Icons.menu_book, color: theme.primaryColor),
+                      leading: Icon(
+                        Icons.menu_book,
+                        color: theme.colorScheme.onSurface,
+                      ),
                       title: Text(
                         kitap["kitapAdi"] ?? "",
                         style: TextStyle(
@@ -758,7 +819,7 @@ class _BooksPageState extends State<BooksPage> {
                                       minHeight: 8,
                                       backgroundColor: Colors.grey[300],
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.green,
+                                        theme.colorScheme.primary,
                                       ),
                                     ),
                                     SizedBox(height: 4),
@@ -768,7 +829,8 @@ class _BooksPageState extends State<BooksPage> {
                                           : "%${(percent * 100).toStringAsFixed(0)} read",
                                       style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.grey[700],
+                                        // color: Colors.grey[700],
+                                        color: theme.colorScheme.onSurface,
                                       ),
                                     ),
                                   ],
@@ -809,7 +871,7 @@ class _BooksPageState extends State<BooksPage> {
                           IconButton(
                             icon: Icon(
                               Icons.edit,
-                              color: theme.colorScheme.secondary,
+                              color: theme.colorScheme.onSurface,
                             ),
                             onPressed: () => _kitapDuzenle(index),
                             tooltip: isTurkish ? 'Düzenle' : 'Edit',
@@ -817,7 +879,7 @@ class _BooksPageState extends State<BooksPage> {
                           IconButton(
                             icon: Icon(
                               Icons.close,
-                              color: isDark ? Colors.red[300] : Colors.red,
+                              color: theme.colorScheme.error,
                             ),
                             onPressed: () => _kitapSil(index),
                             tooltip: isTurkish ? 'Sil' : 'Delete',

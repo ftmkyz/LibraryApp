@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:library_app/pages/homepage.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const MyApp());
@@ -17,7 +18,7 @@ class MyApp extends StatefulWidget {
 enum AppTheme {
   light,
   dark,
-  lavender, // 🌸 özel tema
+  luna,
   sunset, // 🌅 özel tema
   olive, // 🌿 özel tema
 }
@@ -54,20 +55,25 @@ class _MyAppState extends State<MyApp> {
           ),
         );
 
-      case AppTheme.lavender: // 🌸 özel tema örneği
+      case AppTheme.luna:
         return ThemeData(
           useMaterial3: true,
+          textTheme: GoogleFonts.poppinsTextTheme(),
+          // textTheme: GoogleFonts.montserratTextTheme(),
+          // textTheme: GoogleFonts.robotoTextTheme(),
+          // textTheme: GoogleFonts.nunitoTextTheme(),
+          // textTheme: GoogleFonts.openSansTextTheme(),
           colorScheme: const ColorScheme(
-            brightness: Brightness.light,
-            primary: Color(0xFFB388EB),
+            brightness: Brightness.dark,
+            primary: Color(0xFF011C40),
             onPrimary: Colors.white,
-            secondary: Color(0xFFF48FB1),
+            secondary: Color.fromARGB(255, 44, 130, 184),
             onSecondary: Colors.white,
-            surface: Color(0xFFF3E5F5),
-            onSurface: Color(0xFF4A148C),
-            background: Color(0xFFF8EAF6),
-            onBackground: Colors.black,
-            error: Colors.redAccent,
+            surface: Color.fromARGB(255, 49, 86, 129),
+            onSurface: Color(0xFFE0F7FA),
+            background: Color.fromARGB(255, 37, 60, 98),
+            onBackground: Colors.white,
+            error: Color.fromARGB(255, 5, 19, 37),
             onError: Colors.white,
           ),
         );
