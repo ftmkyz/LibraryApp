@@ -131,6 +131,18 @@ class _HomePageState extends State<HomePage>
                   value: AppTheme.olive,
                   child: Icon(Icons.blur_on, color: Color(0xFF99A558)),
                 ),
+                DropdownMenuItem(
+                  value: AppTheme.pinkgray,
+                  child: Icon(Icons.blur_on, color: Color(0xFFFF096C)),
+                ),
+                DropdownMenuItem(
+                  value: AppTheme.red,
+                  child: Icon(Icons.blur_on, color: Color(0xFF680C0A)),
+                ),
+                DropdownMenuItem(
+                  value: AppTheme.chocalate,
+                  child: Icon(Icons.blur_on, color: Color(0xFFB7603A)),
+                ),
               ],
             ),
           ),

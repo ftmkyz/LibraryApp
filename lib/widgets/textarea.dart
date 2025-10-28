@@ -26,6 +26,7 @@ class TextAreaGroup extends StatelessWidget {
   final List<TextInputFormatter>? inputFormatters;
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.all(4.0),
       child: Column(
@@ -66,6 +67,7 @@ class TextAreaGroup extends StatelessWidget {
                   ),
                   keyboardType: keyboardType,
                   inputFormatters: inputFormatters,
+                  style: TextStyle(color: theme.colorScheme.onSecondary),
                 ),
               ),
             ),
