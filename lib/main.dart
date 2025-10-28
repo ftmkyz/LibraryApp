@@ -47,11 +47,15 @@ class _MyAppState extends State<MyApp> {
           brightness: Brightness.dark,
           colorScheme: const ColorScheme.dark(
             primary: Color(0xFF90CAF9),
-            secondary: Color(0xFFCE93D8),
-            surface: Color(0xFF121212),
-            background: Color(0xFF000000),
-            onPrimary: Colors.white,
-            onSurface: Colors.white,
+            onPrimary: Color.fromARGB(255, 145, 133, 133),
+            secondary: Color.fromARGB(255, 45, 150, 236),
+            onSecondary: Colors.white,
+            surface: Color.fromARGB(255, 3, 26, 51),
+            onSurface: Color.fromARGB(255, 221, 228, 233),
+            background: Color.fromARGB(255, 29, 53, 91),
+            onBackground: Colors.white,
+            error: Color.fromARGB(208, 8, 231, 231),
+            onError: Colors.white,
           ),
         );
 
@@ -73,7 +77,7 @@ class _MyAppState extends State<MyApp> {
             onSurface: Color(0xFFE0F7FA),
             background: Color.fromARGB(255, 37, 60, 98),
             onBackground: Colors.white,
-            error: Color.fromARGB(255, 5, 19, 37),
+            error: Color.fromARGB(255, 4, 38, 82),
             onError: Colors.white,
           ),
         );
@@ -83,15 +87,15 @@ class _MyAppState extends State<MyApp> {
           useMaterial3: true,
           colorScheme: const ColorScheme(
             brightness: Brightness.light,
-            primary: Color(0xFFFF7043),
+            surface: Color(0xFFFAE36F), // background surface rengi
+            onSurface: Color(0xFFD6A10E), // surface üzerindeki metin rengi
+            primary: Color(0xFFFBBA4B), // tab bar ve oran rengi
+            error: Color(0xFF502503), // tab default ve hata rengi
             onPrimary: Colors.white,
-            secondary: Color(0xFFFFB74D),
+            secondary: Color.fromARGB(255, 75, 46, 2),
             onSecondary: Colors.black,
-            surface: Color(0xFFFFF3E0),
-            onSurface: Colors.black87,
-            background: Color(0xFFFFF8E1),
+            background: Color.fromARGB(255, 222, 178, 32),
             onBackground: Colors.black,
-            error: Colors.redAccent,
             onError: Colors.white,
           ),
         );
@@ -101,22 +105,28 @@ class _MyAppState extends State<MyApp> {
           useMaterial3: true,
           colorScheme: const ColorScheme(
             brightness: Brightness.light,
-            primary: Color(0xFF8E9A5B),
+            surface: Color(0xFF27301B), // background surface rengi
+            onSurface: Color(0xFFD8DDA8), // surface üzerindeki metin rengi
+            primary: Color(0xFF99A558), // tab bar ve oran rengi
+            error: Color(0xFF41521E), // tab default ve hata rengi
             onPrimary: Colors.white,
-            secondary: Color(0xFFDCE775),
+            secondary: Color.fromARGB(255, 75, 46, 2),
             onSecondary: Colors.black,
-            surface: Color(0xFFF9FBE7),
-            onSurface: Color(0xFF33691E),
-            background: Color(0xFFF1F8E9),
+            background: Color.fromARGB(255, 222, 178, 32),
             onBackground: Colors.black,
-            error: Colors.redAccent,
             onError: Colors.white,
           ),
         );
 
       case AppTheme.light:
     }
-    return ThemeData.light();
+    return ThemeData(
+      useMaterial3: true,
+      colorScheme: ColorScheme.light(
+        error: Color.fromARGB(255, 215, 137, 95),
+        onError: Colors.white,
+      ),
+    );
   }
 
   @override

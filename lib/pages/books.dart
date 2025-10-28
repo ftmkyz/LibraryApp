@@ -202,6 +202,27 @@ class _BooksPageState extends State<BooksPage> {
             ElevatedButton(
               onPressed: () {
                 if (editFormKey.currentState!.validate()) {
+                  final newIsbn = _isbnController.text.trim();
+                  final isbnVar = wishlist.any(
+                    (kitap) => kitap["isbn"] == newIsbn,
+                  );
+                  final isbnExistbooks = kitapListesi.any(
+                    (kitap) => kitap["isbn"] == newIsbn,
+                  );
+                  if (kitapListesi[index]["isbn"] != newIsbn &&
+                      (isbnVar || isbnExistbooks)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isTurkish
+                              ? "Bu ISBN başka bir kitap için eklenmiş!"
+                              : "This ISBN is already added! for another book",
+                        ),
+                        backgroundColor: theme.colorScheme.error,
+                      ),
+                    );
+                    return;
+                  }
                   setState(() {
                     kitapListesi[index] = {
                       "kitapAdi": _kitapAdiController.text,
@@ -571,7 +592,8 @@ class _BooksPageState extends State<BooksPage> {
                                                     ? "Bu ISBN zaten eklenmiş!"
                                                     : "This ISBN is already added!",
                                               ),
-                                              backgroundColor: Colors.red,
+                                              backgroundColor:
+                                                  theme.colorScheme.error,
                                             ),
                                           );
                                           return;
@@ -586,7 +608,8 @@ class _BooksPageState extends State<BooksPage> {
                                                     ? "Bu ISBN zaten eklenmiş!"
                                                     : "This ISBN is already added!",
                                               ),
-                                              backgroundColor: Colors.red,
+                                              backgroundColor:
+                                                  theme.colorScheme.error,
                                             ),
                                           );
                                           return;

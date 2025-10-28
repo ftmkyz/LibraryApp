@@ -122,11 +122,14 @@ class _HomePageState extends State<HomePage>
                 ),
                 DropdownMenuItem(
                   value: AppTheme.sunset,
-                  child: Icon(Icons.wb_twilight, color: Color(0xFFFF7043)),
+                  child: Icon(
+                    Icons.blur_on,
+                    color: Color.fromARGB(255, 251, 210, 0),
+                  ),
                 ),
                 DropdownMenuItem(
                   value: AppTheme.olive,
-                  child: Icon(Icons.eco, color: Color(0xFF8BC34A)),
+                  child: Icon(Icons.blur_on, color: Color(0xFF99A558)),
                 ),
               ],
             ),

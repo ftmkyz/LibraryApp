@@ -201,23 +201,27 @@ class _WishlistPageState extends State<WishlistPage> {
               onPressed: () {
                 // <-- async ekle!
                 if (editFormKey.currentState!.validate()) {
-                  // final yeniIsbn = _isbnController.text.trim();
-                  // final isbnVar = wishlist.any(
-                  //   (kitap) => kitap["isbn"] == yeniIsbn,
-                  // );
-                  // if (isbnVar) {
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(
-                  //       content: Text(
-                  //         isTurkish
-                  //             ? "Bu ISBN zaten eklenmiş!"
-                  //             : "This ISBN is already added!",
-                  //       ),
-                  //       backgroundColor: Colors.red,
-                  //     ),
-                  //   );
-                  //   return;
-                  // }
+                  final newIsbn = _isbnController.text.trim();
+                  final isbnVar = wishlist.any(
+                    (kitap) => kitap["isbn"] == newIsbn,
+                  );
+                  final isbnExistbooks = kitapListesi.any(
+                    (kitap) => kitap["isbn"] == newIsbn,
+                  );
+                  if (wishlist[index]["isbn"] != newIsbn &&
+                      (isbnVar || isbnExistbooks)) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          isTurkish
+                              ? "Bu ISBN başka bir kitap için eklenmiş!"
+                              : "This ISBN is already added! for another book",
+                        ),
+                        backgroundColor: theme.colorScheme.error,
+                      ),
+                    );
+                    return;
+                  }
                   setState(() {
                     wishlist[index] = {
                       "kitapAdi": _kitapAdiController.text,
@@ -491,7 +495,8 @@ class _WishlistPageState extends State<WishlistPage> {
                                                     ? "Bu ISBN zaten eklenmiş!"
                                                     : "This ISBN is already added!",
                                               ),
-                                              backgroundColor: Colors.red,
+                                              backgroundColor:
+                                                  theme.colorScheme.error,
                                             ),
                                           );
                                           return;
@@ -506,7 +511,8 @@ class _WishlistPageState extends State<WishlistPage> {
                                                     ? "Bu ISBN zaten eklenmiş!"
                                                     : "This ISBN is already added!",
                                               ),
-                                              backgroundColor: Colors.red,
+                                              backgroundColor:
+                                                  theme.colorScheme.error,
                                             ),
                                           );
                                           return;
