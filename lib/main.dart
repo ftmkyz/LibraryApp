@@ -39,7 +39,7 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         _currentTheme = AppTheme.values.firstWhere(
           (t) => t.toString() == savedTheme,
-          orElse: () => AppTheme.light,
+          orElse: () => AppTheme.luna,
         );
       });
     }
@@ -129,10 +129,10 @@ class _MyAppState extends State<MyApp> {
           brightness: Brightness.light,
           colorScheme: const ColorScheme.dark(
             brightness: Brightness.light,
-            onSurface: Color(0xFF680C0A),
-            surface: Color(0xFFBE320F),
-            error: Color(0xFFCC5B4A),
-            primary: Color(0xFFEBa9A6),
+            onSurface: Color.fromARGB(255, 215, 198, 212), //text color
+            surface: Color(0xFF974A45), //background of cards
+            error: Color(0xFF871A1D), //
+            primary: Color(0xFFD76762), //main color
 
             onPrimary: Colors.white,
             secondary: Color.fromARGB(255, 75, 46, 2),
@@ -187,9 +187,9 @@ class _MyAppState extends State<MyApp> {
           useMaterial3: true,
           colorScheme: const ColorScheme(
             brightness: Brightness.light,
-            surface: Color(0xFFFAE36F),
-            onSurface: Color(0xFFD6A10E),
-            primary: Color(0xFFFBBA4B),
+            surface: Color.fromARGB(255, 242, 207, 29),
+            onSurface: Color.fromARGB(255, 96, 44, 4),
+            primary: Color(0xFF773D02),
             onPrimary: Colors.white,
             secondary: Color.fromARGB(255, 75, 46, 2),
             onSecondary: Colors.black,

@@ -601,7 +601,10 @@ class _WishlistPageState extends State<WishlistPage> {
                         horizontal: 16,
                         vertical: 12,
                       ),
-                      leading: Icon(Icons.bookmark, color: theme.primaryColor),
+                      leading: Icon(
+                        Icons.bookmark,
+                        color: theme.colorScheme.onSurface,
+                      ),
                       title: Text(
                         kitap["kitapAdi"] ?? "",
                         style: TextStyle(

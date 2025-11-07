@@ -124,7 +124,7 @@ class _HomePageState extends State<HomePage>
                   value: AppTheme.sunset,
                   child: Icon(
                     Icons.blur_on,
-                    color: Color.fromARGB(255, 251, 210, 0),
+                    color: Color.fromARGB(225, 201, 170, 15),
                   ),
                 ),
                 DropdownMenuItem(
