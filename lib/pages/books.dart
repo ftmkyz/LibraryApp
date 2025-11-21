@@ -853,7 +853,7 @@ class _BooksPageState extends State<BooksPage> {
                                       style: TextStyle(
                                         fontSize: 12,
                                         // color: Colors.grey[700],
-                                        color: theme.colorScheme.onSurface,
+                                        color: theme.colorScheme.surface,
                                       ),
                                     ),
                                   ],
@@ -888,8 +888,8 @@ class _BooksPageState extends State<BooksPage> {
                               });
                               _kitaplariKaydet();
                             },
-                            activeColor: theme.primaryColor,
-                            checkColor: theme.cardColor,
+                            activeColor: theme.colorScheme.surface,
+                            checkColor: theme.colorScheme.onSurface,
                           ),
                           IconButton(
                             icon: Icon(
