@@ -1,5 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:library_app/widgets/textarea.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -332,6 +334,114 @@ class _BooksPageState extends State<BooksPage> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.black26
+                                : Colors.grey.withOpacity(0.15),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.casino), // zar simgesi
+                        color: theme.colorScheme.onSurface,
+                        tooltip: isTurkish ? 'Rastgele Kitap' : 'Random Book',
+                        onPressed: () {
+                          // Okunmamış kitaplar
+                          final unreadBooks = kitapListesi
+                              .where((kitap) => kitap["tamamlandi"] != "true")
+                              .toList();
+
+                          if (unreadBooks.isEmpty) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  isTurkish
+                                      ? "Okunmamış kitap yok!"
+                                      : "No unread books!",
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          final randomBook =
+                              unreadBooks[Random().nextInt(unreadBooks.length)];
+
+                          // Rastgele seçilen kitabı card ile göster
+                          showDialog(
+                            context: context,
+                            builder: (dialogContext) {
+                              final theme = Theme.of(dialogContext);
+                              return AlertDialog(
+                                backgroundColor: theme.cardColor,
+                                titleTextStyle: TextStyle(
+                                  color: theme.colorScheme.onSurface,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  fontFamily: 'Pacifico',
+                                ),
+                                contentTextStyle: TextStyle(
+                                  color: theme.colorScheme.onSurface,
+                                  fontSize: 16,
+                                ),
+                                title: Text(
+                                  randomBook["kitapAdi"] ?? "",
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onSurface,
+                                    fontFamily:
+                                        'Pacifico', // Burada fontu değiştirdik
+                                    fontSize: 20, // opsiyonel
+                                    fontWeight: FontWeight.bold, // opsiyonel
+                                  ),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      isTurkish
+                                          ? "Yazar: ${randomBook["yazar"]}"
+                                          : "Author: ${randomBook["yazar"]}",
+                                    ),
+                                    Text(
+                                      isTurkish
+                                          ? "Yayınevi: ${randomBook["yayinevi"]}"
+                                          : "Publisher: ${randomBook["yayinevi"]}",
+                                    ),
+                                    Text("ISBN: ${randomBook["isbn"]}"),
+                                    Text(
+                                      isTurkish
+                                          ? "Sayfa: ${randomBook["sayfaSayisi"]}"
+                                          : "Pages: ${randomBook["sayfaSayisi"]}",
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () =>
+                                        Navigator.pop(dialogContext),
+                                    style: TextButton.styleFrom(
+                                      foregroundColor: theme
+                                          .colorScheme
+                                          .onSurface, // Yazı rengi
+                                    ),
+                                    child: Text(isTurkish ? "Kapat" : "Close"),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
                     Expanded(
                       child: AnimatedSwitcher(
                         duration: Duration(milliseconds: 300),

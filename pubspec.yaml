@@ -65,7 +65,11 @@ flutter_icons:
 flutter:
   assets:
     - assets/Copilot_20250904_234353.png
-
+  fonts:
+    - family: Pacifico
+      fonts:
+        - asset: assets/fonts/Pacifico-Regular.ttf
+          style: italic
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
