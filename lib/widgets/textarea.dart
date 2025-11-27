@@ -62,12 +62,19 @@ class TextAreaGroup extends StatelessWidget {
                         return value!.isEmpty ? errorText : null;
                       },
                   decoration: InputDecoration(
-                    hintText: hintText,
+                    // hintText: hintText,
+                    labelText: hintText,
                     floatingLabelBehavior: FloatingLabelBehavior.auto,
+                    labelStyle: TextStyle(
+                      color:
+                          theme.colorScheme.error, // Label rengi buradan gelir
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   keyboardType: keyboardType,
                   inputFormatters: inputFormatters,
-                  style: TextStyle(color: theme.colorScheme.onSecondary),
+                  // ignore: deprecated_member_use
+                  style: TextStyle(color: theme.colorScheme.onSurface),
                 ),
               ),
             ),

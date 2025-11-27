@@ -256,26 +256,48 @@ class _BooksPageState extends State<BooksPage> {
   }
 
   Future<void> _fillBookFieldsFromIsbn(String isbn) async {
-    final url =
+    // 1. OpenLibrary
+    final openUrl =
         'https://openlibrary.org/api/books?bibkeys=ISBN:$isbn&format=json&jscmd=data';
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
+
+    final openResponse = await http.get(Uri.parse(openUrl));
+
+    if (openResponse.statusCode == 200) {
+      final data = json.decode(openResponse.body);
       final book = data['ISBN:$isbn'];
+
       if (book != null) {
         final title = book['title'] ?? '';
-        final authors = book['authors'] as List<dynamic>?;
-        final author = authors != null && authors.isNotEmpty
-            ? authors[0]['name']
-            : '';
-        final publishers = book['publishers'] as List<dynamic>?;
-        final publisher = publishers != null && publishers.isNotEmpty
-            ? publishers[0]['name']
-            : '';
+        final authors = book['authors']?[0]?['name'] ?? '';
+        final publisher = book['publishers']?[0]?['name'] ?? '';
+
         setState(() {
           _kitapAdiController.text = title;
-          _yazarController.text = author;
+          _yazarController.text = authors;
           _yayineviController.text = publisher;
+        });
+        return; // burada dur
+      }
+    }
+
+    // 2. Google Books API fallback
+    final googleUrl =
+        'https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn';
+
+    final googleResponse = await http.get(Uri.parse(googleUrl));
+
+    if (googleResponse.statusCode == 200) {
+      final googleData = json.decode(googleResponse.body);
+
+      if (googleData['totalItems'] > 0) {
+        final volume = googleData['items'][0]['volumeInfo'];
+
+        setState(() {
+          _kitapAdiController.text = volume['title'] ?? '';
+          _yazarController.text = (volume['authors'] != null)
+              ? volume['authors'].join(', ')
+              : '';
+          _yayineviController.text = volume['publisher'] ?? '';
         });
       }
     }

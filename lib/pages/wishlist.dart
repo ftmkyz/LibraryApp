@@ -33,28 +33,65 @@ class _WishlistPageState extends State<WishlistPage> {
   }
 
   Future<void> _fillBookFieldsFromIsbn(String isbn) async {
-    final url =
+    // 1) OpenLibrary API
+    final openUrl =
         'https://openlibrary.org/api/books?bibkeys=ISBN:$isbn&format=json&jscmd=data';
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      final book = data['ISBN:$isbn'];
-      if (book != null) {
-        final title = book['title'] ?? '';
-        final authors = book['authors'] as List<dynamic>?;
-        final author = authors != null && authors.isNotEmpty
-            ? authors[0]['name']
-            : '';
-        final publishers = book['publishers'] as List<dynamic>?;
-        final publisher = publishers != null && publishers.isNotEmpty
-            ? publishers[0]['name']
-            : '';
-        setState(() {
-          _kitapAdiController.text = title;
-          _yazarController.text = author;
-          _yayineviController.text = publisher;
-        });
+
+    try {
+      final openResponse = await http.get(Uri.parse(openUrl));
+
+      if (openResponse.statusCode == 200) {
+        final data = json.decode(openResponse.body);
+        final book = data['ISBN:$isbn'];
+
+        // Eğer OpenLibrary bulduysa → direkt doldur ve çık
+        if (book != null) {
+          final title = book['title'] ?? '';
+          final authors = book['authors'] as List<dynamic>?;
+          final author = authors != null && authors.isNotEmpty
+              ? authors[0]['name']
+              : '';
+          final publishers = book['publishers'] as List<dynamic>?;
+          final publisher = publishers != null && publishers.isNotEmpty
+              ? publishers[0]['name']
+              : '';
+
+          setState(() {
+            _kitapAdiController.text = title;
+            _yazarController.text = author;
+            _yayineviController.text = publisher;
+          });
+
+          return; // OpenLibrary bulundu → fonksiyondan çık
+        }
       }
+    } catch (_) {
+      // OpenLibrary hatalarını önemseme
+    }
+
+    final googleUrl =
+        'https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn';
+
+    try {
+      final googleResponse = await http.get(Uri.parse(googleUrl));
+
+      if (googleResponse.statusCode == 200) {
+        final data = json.decode(googleResponse.body);
+
+        if (data['totalItems'] > 0) {
+          final info = data['items'][0]['volumeInfo'];
+
+          setState(() {
+            _kitapAdiController.text = info['title'] ?? '';
+            _yazarController.text = info['authors'] != null
+                ? info['authors'].join(', ')
+                : '';
+            _yayineviController.text = info['publisher'] ?? '';
+          });
+        }
+      }
+    } catch (_) {
+      // Google Books hatalarını önemseme
     }
   }
 
@@ -156,28 +193,58 @@ class _WishlistPageState extends State<WishlistPage> {
                     controller: _kitapAdiController,
                     decoration: InputDecoration(
                       labelText: isTurkish ? 'Kitap Adı' : 'Book Name',
+                      labelStyle: TextStyle(
+                        color: theme
+                            .colorScheme
+                            .error, // Label rengi buradan gelir
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                     validator: (value) => value!.isEmpty
                         ? (isTurkish
                               ? 'Kitap adı gerekli'
                               : 'Book name required')
                         : null,
+                    style: TextStyle(color: theme.colorScheme.onSurface),
                   ),
                   TextFormField(
                     controller: _yazarController,
                     decoration: InputDecoration(
                       labelText: isTurkish ? 'Yazar Adı' : 'Author',
+                      labelStyle: TextStyle(
+                        color: theme
+                            .colorScheme
+                            .error, // Label rengi buradan gelir
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                    style: TextStyle(color: theme.colorScheme.onSurface),
                   ),
                   TextFormField(
                     controller: _yayineviController,
                     decoration: InputDecoration(
                       labelText: isTurkish ? 'Yayınevi' : 'Publisher',
+                      labelStyle: TextStyle(
+                        color: theme
+                            .colorScheme
+                            .error, // Label rengi buradan gelir
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
+                    style: TextStyle(color: theme.colorScheme.onSurface),
                   ),
                   TextFormField(
                     controller: _isbnController,
-                    decoration: InputDecoration(labelText: 'ISBN'),
+                    decoration: InputDecoration(
+                      labelText: 'ISBN',
+                      labelStyle: TextStyle(
+                        color: theme
+                            .colorScheme
+                            .error, // Label rengi buradan gelir
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    style: TextStyle(color: theme.colorScheme.onSurface),
                   ),
                 ],
               ),
