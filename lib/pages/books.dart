@@ -64,15 +64,32 @@ class _BooksPageState extends State<BooksPage> {
     await prefs.setString('kitapListesi', json.encode(kitapListesi));
   }
 
-  void _kitapSil(int index) {
+  void _kitapSil(Map<String, String> kitap) {
+    final originalIndex = kitapListesi.indexWhere((k) {
+      if ((kitap["isbn"] ?? "").isNotEmpty) {
+        return k["isbn"] == kitap["isbn"];
+      } else {
+        return k["kitapAdi"] == kitap["kitapAdi"];
+      }
+    });
+    if (originalIndex == -1) return;
+
     setState(() {
-      kitapListesi.removeAt(index);
+      kitapListesi.removeAt(originalIndex);
     });
     _kitaplariKaydet();
   }
 
-  void _kitapDuzenle(int index) {
-    final kitap = kitapListesi[index];
+  void _kitapDuzenle(Map<String, String> kitap) {
+    // final kitap = kitapListesi[index];
+    final index = kitapListesi.indexWhere((k) {
+      if ((kitap["isbn"] ?? "").isNotEmpty) {
+        return k["isbn"] == kitap["isbn"];
+      } else {
+        return k["kitapAdi"] == kitap["kitapAdi"];
+      }
+    });
+    if (index == -1) return;
     _kitapAdiController.text = kitap["kitapAdi"] ?? "";
     _yazarController.text = kitap["yazar"] ?? "";
     _yayineviController.text = kitap["yayinevi"] ?? "";
@@ -356,7 +373,13 @@ class _BooksPageState extends State<BooksPage> {
                         onPressed: () {
                           // Okunmamış kitaplar
                           final unreadBooks = kitapListesi
-                              .where((kitap) => kitap["tamamlandi"] != "true")
+                              .where(
+                                (kitap) =>
+                                    (kitap["sayfaSayisi"]?.isNotEmpty ?? false)
+                                    ? kitap["sayfaSayisi"] !=
+                                          kitap["okunanSayfa"]
+                                    : kitap["tamamlandi"] != "true",
+                              )
                               .toList();
 
                           if (unreadBooks.isEmpty) {
@@ -410,17 +433,51 @@ class _BooksPageState extends State<BooksPage> {
                                       isTurkish
                                           ? "Yazar: ${randomBook["yazar"]}"
                                           : "Author: ${randomBook["yazar"]}",
+                                      style: TextStyle(
+                                        color: theme.colorScheme.onSurface,
+                                        fontFamily:
+                                            'Caveat', // Burada fontu değiştirdik
+                                        fontSize: 20, // opsiyonel
+                                        fontWeight:
+                                            FontWeight.bold, // opsiyonel
+                                      ),
                                     ),
                                     Text(
                                       isTurkish
                                           ? "Yayınevi: ${randomBook["yayinevi"]}"
                                           : "Publisher: ${randomBook["yayinevi"]}",
+                                      style: TextStyle(
+                                        color: theme.colorScheme.onSurface,
+                                        fontFamily:
+                                            'Caveat', // Burada fontu değiştirdik
+                                        fontSize: 20, // opsiyonel
+                                        fontWeight:
+                                            FontWeight.bold, // opsiyonel
+                                      ),
                                     ),
-                                    Text("ISBN: ${randomBook["isbn"]}"),
+                                    Text(
+                                      "ISBN: ${randomBook["isbn"]}",
+                                      style: TextStyle(
+                                        color: theme.colorScheme.onSurface,
+                                        fontFamily:
+                                            'Caveat', // Burada fontu değiştirdik
+                                        fontSize: 20, // opsiyonel
+                                        fontWeight:
+                                            FontWeight.bold, // opsiyonel
+                                      ),
+                                    ),
                                     Text(
                                       isTurkish
                                           ? "Sayfa: ${randomBook["sayfaSayisi"]}"
                                           : "Pages: ${randomBook["sayfaSayisi"]}",
+                                      style: TextStyle(
+                                        color: theme.colorScheme.onSurface,
+                                        fontFamily:
+                                            'Caveat', // Burada fontu değiştirdik
+                                        fontSize: 20, // opsiyonel
+                                        fontWeight:
+                                            FontWeight.bold, // opsiyonel
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -1005,17 +1062,22 @@ class _BooksPageState extends State<BooksPage> {
                                     kitap["sayfaSayisi"] ==
                                         kitap["okunanSayfa"]),
                             onChanged: (val) {
+                              final originalIndex = kitapListesi.indexWhere(
+                                (k) => k["isbn"] == kitap["isbn"],
+                              );
+                              if (originalIndex == -1) return;
                               setState(() {
-                                kitapListesi[index]["tamamlandi"] = val
+                                kitapListesi[originalIndex]["tamamlandi"] = val
                                     .toString();
                                 if (val == true) {
-                                  // Set progress to 100% and pages read = total pages
                                   final total =
-                                      kitapListesi[index]["sayfaSayisi"] ?? "";
-                                  kitapListesi[index]["okunanSayfa"] = total;
+                                      kitapListesi[originalIndex]["sayfaSayisi"] ??
+                                      "";
+                                  kitapListesi[originalIndex]["okunanSayfa"] =
+                                      total;
                                 } else {
-                                  // If unchecked, reset pages read to 0
-                                  kitapListesi[index]["okunanSayfa"] = "0";
+                                  kitapListesi[originalIndex]["okunanSayfa"] =
+                                      "0";
                                 }
                               });
                               _kitaplariKaydet();
@@ -1028,7 +1090,8 @@ class _BooksPageState extends State<BooksPage> {
                               Icons.edit,
                               color: theme.colorScheme.onSurface,
                             ),
-                            onPressed: () => _kitapDuzenle(index),
+                            onPressed: () =>
+                                _kitapDuzenle(kitap), // use book map
                             tooltip: isTurkish ? 'Düzenle' : 'Edit',
                           ),
                           IconButton(
@@ -1036,7 +1099,7 @@ class _BooksPageState extends State<BooksPage> {
                               Icons.close,
                               color: theme.colorScheme.error,
                             ),
-                            onPressed: () => _kitapSil(index),
+                            onPressed: () => _kitapSil(kitap), // use book map
                             tooltip: isTurkish ? 'Sil' : 'Delete',
                           ),
                         ],
