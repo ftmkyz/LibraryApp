@@ -32,7 +32,7 @@ class _BooksPageState extends State<BooksPage> {
   String _searchText = '';
   bool _showSearchField = false;
   String _filterType = 'all';
-
+  String lastsearchvalue = '';
   @override
   void initState() {
     super.initState();
@@ -533,7 +533,8 @@ class _BooksPageState extends State<BooksPage> {
                                   ],
                                 ),
 
-                                child: TextField(
+                                child: TextFormField(
+                                  initialValue: lastsearchvalue,
                                   key: const ValueKey(1),
                                   decoration: InputDecoration(
                                     hintText: isTurkish
@@ -552,6 +553,7 @@ class _BooksPageState extends State<BooksPage> {
                                   onChanged: (value) {
                                     setState(() {
                                       _searchText = value;
+                                      lastsearchvalue = value;
                                     });
                                   },
                                 ),
