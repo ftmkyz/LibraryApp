@@ -275,6 +275,27 @@ class _BooksPageState extends State<BooksPage> {
   }
 
   Future<void> _fillBookFieldsFromIsbn(String isbn) async {
+    final googleUrl =
+        'https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn';
+
+    final googleResponse = await http.get(Uri.parse(googleUrl));
+
+    if (googleResponse.statusCode == 200) {
+      final googleData = json.decode(googleResponse.body);
+
+      if (googleData['totalItems'] > 0) {
+        final volume = googleData['items'][0]['volumeInfo'];
+
+        setState(() {
+          _kitapAdiController.text = volume['title'] ?? '';
+          _yazarController.text = (volume['authors'] != null)
+              ? volume['authors'].join(', ')
+              : '';
+          _yayineviController.text = volume['publisher'] ?? '';
+          _sayfaSayisiController.text = volume['pageCount']?.toString() ?? '';
+        });
+      }
+    }
     // 1. OpenLibrary
     final openUrl =
         'https://openlibrary.org/api/books?bibkeys=ISBN:$isbn&format=json&jscmd=data';
@@ -300,26 +321,6 @@ class _BooksPageState extends State<BooksPage> {
     }
 
     // 2. Google Books API fallback
-    final googleUrl =
-        'https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn';
-
-    final googleResponse = await http.get(Uri.parse(googleUrl));
-
-    if (googleResponse.statusCode == 200) {
-      final googleData = json.decode(googleResponse.body);
-
-      if (googleData['totalItems'] > 0) {
-        final volume = googleData['items'][0]['volumeInfo'];
-
-        setState(() {
-          _kitapAdiController.text = volume['title'] ?? '';
-          _yazarController.text = (volume['authors'] != null)
-              ? volume['authors'].join(', ')
-              : '';
-          _yayineviController.text = volume['publisher'] ?? '';
-        });
-      }
-    }
   }
 
   Future<void> _scanIsbn() async {
