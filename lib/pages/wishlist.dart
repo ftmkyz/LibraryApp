@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, depend_on_referenced_packages, prefer_interpolation_to_compose_strings
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -6,6 +6,9 @@ import 'dart:convert';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:http/http.dart' as http;
 import 'package:library_app/widgets/textarea.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+import 'package:syncfusion_flutter_pdf/pdf.dart';
 
 class WishlistPage extends StatefulWidget {
   final Locale? locale;
@@ -130,19 +133,98 @@ class _WishlistPageState extends State<WishlistPage> {
     await prefs.setString('wishlist', json.encode(wishlist));
   }
 
-  // void _removeAndMoveToBooks(int index) {
-  //   final book = wishlist[index];
-  //   setState(() {
-  //     wishlist.removeAt(index);
-  //   });
-  //   _saveWishlist();
-  //   if (widget.onMoveToBooks != null) {
-  //     widget.onMoveToBooks!(book);
-  //   }
-  // }
+  Future<void> _importIsbnFromPdf(String path) async {
+    final bytes = await File(path).readAsBytes();
+    final document = PdfDocument(inputBytes: bytes);
+    final text = PdfTextExtractor(document).extractText();
+    document.dispose();
+
+    final lines = text
+        .split('\n')
+        .map((l) => l.trim())
+        .where((l) => l.isNotEmpty)
+        .toList();
+
+    List<Map<String, String>> importedBooks = [];
+    Map<String, String> currentBook = {};
+    String currentField = "";
+
+    for (final line in lines) {
+      if (line.startsWith("Kitap")) {
+        // Yeni kitap başlıyor
+        currentBook = {"kitapAdi": "", "yazar": "", "yayinevi": "", "isbn": ""};
+        currentField = "kitapAdi";
+      } else if (line.startsWith("Adi:")) {
+        currentField = "kitapAdi";
+      } else if (line.startsWith("Yazar:")) {
+        currentField = "yazar";
+      } else if (line.startsWith("Yayinevi:")) {
+        currentField = "yayinevi";
+      } else if (line.startsWith("ISBN:")) {
+        currentField = "isbn";
+      } else {
+        // Alanın devamı
+        if (currentField.isNotEmpty) {
+          currentBook[currentField] =
+              (currentBook[currentField] ?? "") + " " + line;
+        }
+      }
+
+      // ISBN dolunca kitabı ekle
+      if (currentField == "isbn" && line.startsWith("ISBN:") == false) {
+        final isbn =
+            currentBook["isbn"]?.replaceAll(RegExp(r'[-\s]'), '') ?? "";
+        if (isbn.isNotEmpty) {
+          currentBook["isbn"] = isbn;
+          importedBooks.add(currentBook);
+          currentBook = {};
+          currentField = "";
+        }
+      }
+    }
+
+    // Sende olmayan ISBN’leri ekle
+    final existingIsbns = {
+      ...wishlist.map((b) => b['isbn'] ?? ''),
+      ...kitapListesi.map((b) => b['isbn'] ?? ''),
+    };
+
+    for (final book in importedBooks) {
+      final isbn = book["isbn"] ?? "";
+      if (isbn.isEmpty || existingIsbns.contains(isbn)) continue;
+
+      await _fillBookFieldsFromIsbn(isbn);
+
+      setState(() {
+        wishlist.add({
+          "kitapAdi": _kitapAdiController.text.isNotEmpty
+              ? _kitapAdiController.text
+              : book["kitapAdi"] ?? "Bilinmeyen",
+          "yazar": _yazarController.text.isNotEmpty
+              ? _yazarController.text
+              : book["yazar"] ?? "Bilinmeyen",
+          "yayinevi": _yayineviController.text.isNotEmpty
+              ? _yayineviController.text
+              : book["yayinevi"] ?? "Bilinmeyen",
+          "isbn": isbn,
+        });
+      });
+    }
+
+    _saveWishlist();
+  }
+
+  Future<void> _pickPdfAndImport() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+    if (result != null) {
+      await _importIsbnFromPdf(result.files.single.path!);
+    }
+  }
 
   void _deleteWishlistBook(Map<String, String> kitap) {
-    print(kitap);
     final originalIndex = wishlist.indexWhere((k) {
       if ((kitap["isbn"] ?? "").isNotEmpty) {
         return k["isbn"] == kitap["isbn"];
@@ -424,6 +506,33 @@ class _WishlistPageState extends State<WishlistPage> {
                       ),
                       child: IconButton(
                         icon: Icon(
+                          Icons.upload_file,
+                          // color: Theme.of(context).primaryColor,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        tooltip: isTurkish
+                            ? 'PDF’den ISBN Import'
+                            : 'Import ISBN from PDF',
+                        onPressed: _pickPdfAndImport,
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.black26
+                                : Colors.grey.withOpacity(0.15),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: Icon(
                           Icons.search_outlined,
                           // color: Theme.of(context).primaryColor,
                           color: theme.colorScheme.onSurface,
@@ -657,7 +766,6 @@ class _WishlistPageState extends State<WishlistPage> {
                         kitap["isbn"]?.toLowerCase().contains(query) == true) &&
                     matchesFilter;
               }).toList();
-              print(filteredList);
               return ListView.builder(
                 itemCount: filteredList.length,
                 itemBuilder: (context, index) {

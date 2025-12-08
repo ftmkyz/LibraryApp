@@ -1,4 +1,4 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, unused_import, depend_on_referenced_packages
 
 import 'dart:math';
 
@@ -9,6 +9,9 @@ import 'dart:convert';
 import 'package:barcode_scan2/barcode_scan2.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/services.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 
 class BooksPage extends StatefulWidget {
   const BooksPage({super.key});
@@ -62,6 +65,39 @@ class _BooksPageState extends State<BooksPage> {
   Future<void> _kitaplariKaydet() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('kitapListesi', json.encode(kitapListesi));
+  }
+
+  Future<void> _exportBooksToPdf(List<Map<String, String>> kitapListesi) async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        build: (pw.Context context) {
+          return [
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: kitapListesi.map((kitap) {
+                return pw.Container(
+                  margin: const pw.EdgeInsets.only(bottom: 12),
+                  child: pw.Text(
+                    "Kitap Adi: ${kitap['kitapAdi'] ?? ''}\n"
+                    "Yazar: ${kitap['yazar'] ?? ''}\n"
+                    "Yayinevi: ${kitap['yayinevi'] ?? ''}\n"
+                    "ISBN: ${kitap['isbn'] ?? ''}",
+                  ),
+                );
+              }).toList(),
+            ),
+          ];
+        },
+      ),
+    );
+
+    await Printing.sharePdf(
+      bytes: await pdf.save(),
+      filename: 'kitap_listesi.pdf',
+    );
   }
 
   void _kitapSil(Map<String, String> kitap) {
@@ -498,6 +534,35 @@ class _BooksPageState extends State<BooksPage> {
                               );
                             },
                           );
+                        },
+                      ),
+                    ),
+                    SizedBox(width: 8),
+
+                    // PDF export icon
+                    Container(
+                      decoration: BoxDecoration(
+                        color: theme.cardColor,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: [
+                          BoxShadow(
+                            color:
+                                Theme.of(context).brightness == Brightness.dark
+                                ? Colors.black26
+                                : Colors.grey.withOpacity(0.15),
+                            blurRadius: 6,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.picture_as_pdf),
+                        color: theme.colorScheme.onSurface,
+                        tooltip: isTurkish
+                            ? 'PDF Olarak Paylaş'
+                            : 'Share as PDF',
+                        onPressed: () {
+                          _exportBooksToPdf(kitapListesi);
                         },
                       ),
                     ),
