@@ -294,6 +294,7 @@ class _BooksPageState extends State<BooksPage> {
           _yayineviController.text = volume['publisher'] ?? '';
           _sayfaSayisiController.text = volume['pageCount']?.toString() ?? '';
         });
+        return;
       }
     }
     // 1. OpenLibrary
@@ -316,7 +317,7 @@ class _BooksPageState extends State<BooksPage> {
           _yazarController.text = authors;
           _yayineviController.text = publisher;
         });
-        return; // burada dur
+        // burada dur
       }
     }
 
