@@ -25,7 +25,7 @@ class _WishlistPageState extends State<WishlistPage> {
   List<Map<String, String>> kitapListesi = [];
   String _searchText = '';
   bool _showSearchField = false;
-
+  String lastsearchvalue = '';
   @override
   void initState() {
     super.initState();
@@ -141,9 +141,18 @@ class _WishlistPageState extends State<WishlistPage> {
   //   }
   // }
 
-  void _deleteWishlistBook(int index) {
+  void _deleteWishlistBook(Map<String, String> kitap) {
+    print(kitap);
+    final originalIndex = wishlist.indexWhere((k) {
+      if ((kitap["isbn"] ?? "").isNotEmpty) {
+        return k["isbn"] == kitap["isbn"];
+      } else {
+        return k["kitapAdi"] == kitap["kitapAdi"];
+      }
+    });
+    if (originalIndex == -1) return;
     setState(() {
-      wishlist.removeAt(index);
+      wishlist.removeAt(originalIndex);
     });
     _saveWishlist();
   }
@@ -167,8 +176,14 @@ class _WishlistPageState extends State<WishlistPage> {
     await prefs.setString('kitapListesi', json.encode(kitapListesi));
   }
 
-  void _editWishlistBook(int index) {
-    final kitap = wishlist[index];
+  void _editWishlistBook(Map<String, String> kitap) {
+    final index = wishlist.indexWhere((k) {
+      if ((kitap["isbn"] ?? "").isNotEmpty) {
+        return k["isbn"] == kitap["isbn"];
+      } else {
+        return k["kitapAdi"] == kitap["kitapAdi"];
+      }
+    });
     _kitapAdiController.text = kitap["kitapAdi"] ?? "";
     _yazarController.text = kitap["yazar"] ?? "";
     _yayineviController.text = kitap["yayinevi"] ?? "";
@@ -366,7 +381,8 @@ class _WishlistPageState extends State<WishlistPage> {
                                       ),
                                     ],
                                   ),
-                                  child: TextField(
+                                  child: TextFormField(
+                                    initialValue: lastsearchvalue,
                                     key: const ValueKey(1),
                                     decoration: InputDecoration(
                                       labelText: isTurkish
@@ -382,6 +398,7 @@ class _WishlistPageState extends State<WishlistPage> {
                                     onChanged: (value) {
                                       setState(() {
                                         _searchText = value;
+                                        lastsearchvalue = value;
                                       });
                                     },
                                   ),
@@ -640,11 +657,11 @@ class _WishlistPageState extends State<WishlistPage> {
                         kitap["isbn"]?.toLowerCase().contains(query) == true) &&
                     matchesFilter;
               }).toList();
-
+              print(filteredList);
               return ListView.builder(
                 itemCount: filteredList.length,
                 itemBuilder: (context, index) {
-                  final kitap = wishlist[index];
+                  final kitap = filteredList[index];
                   final theme = Theme.of(context);
                   final isDark = theme.brightness == Brightness.dark;
                   return Container(
@@ -719,7 +736,7 @@ class _WishlistPageState extends State<WishlistPage> {
                               color: theme.colorScheme.onSurface,
                             ),
                             tooltip: isTurkish ? "Düzenle" : "Edit",
-                            onPressed: () => _editWishlistBook(index),
+                            onPressed: () => _editWishlistBook(kitap),
                           ),
                           IconButton(
                             icon: Icon(
@@ -727,7 +744,7 @@ class _WishlistPageState extends State<WishlistPage> {
                               color: theme.colorScheme.error,
                             ),
                             tooltip: isTurkish ? "Sil" : "Delete",
-                            onPressed: () => _deleteWishlistBook(index),
+                            onPressed: () => _deleteWishlistBook(kitap),
                           ),
                         ],
                       ),
