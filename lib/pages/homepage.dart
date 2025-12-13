@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:library_app/pages/books.dart';
 import 'package:library_app/pages/wishlist.dart';
@@ -52,106 +54,42 @@ class _HomePageState extends State<HomePage>
             items: [
               DropdownMenuItem(
                 value: const Locale('en'),
-                child: Row(
-                  children: [
-                    // const Icon(Icons.translate),
-                    const SizedBox(width: 8),
-                    Text(
-                      'English',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'English',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
               DropdownMenuItem(
                 value: const Locale('tr'),
-                child: Row(
-                  children: [
-                    // const Icon(Icons.translate),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Türkçe',
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Türkçe',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                 ),
               ),
             ],
           ),
 
-          /// Tema seçimi (renk temaları)
+          /// Tema seçimi (carousel slider)
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: DropdownButton<AppTheme>(
-              value: AppTheme.values.contains(widget.currentTheme)
-                  ? widget.currentTheme
-                  : AppTheme.light,
-              underline: const SizedBox(),
-              dropdownColor: Theme.of(context).canvasColor,
-              // icon: const Icon(Icons.palette_outlined),
-              onChanged: (AppTheme? newTheme) {
-                if (newTheme != null && widget.onThemeChange != null) {
-                  widget.onThemeChange!(newTheme);
-                }
-              },
-              items: [
-                DropdownMenuItem(
-                  value: AppTheme.light,
-                  child: Icon(
-                    Icons.blur_on,
-                    color: const Color.fromARGB(255, 184, 182, 175),
-                  ),
-                ),
-                DropdownMenuItem(
-                  value: AppTheme.dark,
-                  child: Icon(
-                    Icons.blur_on,
-                    color: const Color.fromARGB(255, 67, 67, 69),
-                  ),
-                ),
-                DropdownMenuItem(
-                  value: AppTheme.luna,
-                  child: Icon(
-                    Icons.blur_on,
-                    color: Color.fromARGB(255, 91, 160, 240),
-                  ),
-                ),
-                DropdownMenuItem(
-                  value: AppTheme.sunset,
-                  child: Icon(
-                    Icons.blur_on,
-                    color: Color.fromARGB(225, 201, 170, 15),
-                  ),
-                ),
-                DropdownMenuItem(
-                  value: AppTheme.olive,
-                  child: Icon(Icons.blur_on, color: Color(0xFF99A558)),
-                ),
-                DropdownMenuItem(
-                  value: AppTheme.pinkgray,
-                  child: Icon(Icons.blur_on, color: Color(0xFFFF096C)),
-                ),
-                DropdownMenuItem(
-                  value: AppTheme.red,
-                  child: Icon(Icons.blur_on, color: Color(0xFF680C0A)),
-                ),
-                DropdownMenuItem(
-                  value: AppTheme.chocalate,
-                  child: Icon(Icons.blur_on, color: Color(0xFFB7603A)),
-                ),
-              ],
+            child: SizedBox(
+              width: 80,
+              height: 60,
+              child: ThemeCarousel(
+                currentTheme: widget.currentTheme,
+                onThemeChange: widget.onThemeChange,
+              ),
             ),
           ),
         ],
 
         bottom: TabBar(
           controller: _tabController,
-          labelColor: theme.colorScheme.onSurface, // seçili tab yazı rengi
-          // ignore: deprecated_member_use
+          labelColor: theme.colorScheme.onSurface,
           unselectedLabelColor: theme.colorScheme.error,
           tabs: [
             Tab(text: isTurkish ? "Kitaplığım" : "My Books"),
@@ -167,6 +105,91 @@ class _HomePageState extends State<HomePage>
           WishlistPage(locale: widget.locale),
         ],
       ),
+    );
+  }
+}
+
+/// Carousel slider widget
+class ThemeCarousel extends StatefulWidget {
+  final AppTheme currentTheme;
+  final ValueChanged<AppTheme>? onThemeChange;
+
+  const ThemeCarousel({
+    super.key,
+    required this.currentTheme,
+    this.onThemeChange,
+  });
+
+  @override
+  State<ThemeCarousel> createState() => _ThemeCarouselState();
+}
+
+class _ThemeCarouselState extends State<ThemeCarousel> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  final Map<AppTheme, Color> themeColors = {
+    AppTheme.light: const Color.fromARGB(255, 184, 182, 175),
+    AppTheme.dark: const Color.fromARGB(255, 67, 67, 69),
+    AppTheme.luna: const Color.fromARGB(255, 91, 160, 240),
+    AppTheme.sunset: const Color.fromARGB(225, 201, 170, 15),
+    AppTheme.olive: const Color(0xFF99A558),
+    AppTheme.pinkgray: const Color(0xFFFF096C),
+    AppTheme.red: const Color(0xFF680C0A),
+    AppTheme.chocalate: const Color(0xFFB7603A),
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = AppTheme.values.indexOf(widget.currentTheme);
+    // viewportFraction: 0.5 → bir tanesi tam, yanındakiler yarım görünecek
+    _pageController = PageController(
+      initialPage: _currentIndex,
+      viewportFraction: 0.5,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PageView.builder(
+      controller: _pageController,
+      // sonsuz döngü için büyük bir itemCount veriyoruz
+      itemCount: 10000,
+      onPageChanged: (index) {
+        final themeIndex = index % AppTheme.values.length;
+        setState(() {
+          _currentIndex = themeIndex;
+        });
+        widget.onThemeChange?.call(AppTheme.values[themeIndex]);
+      },
+      itemBuilder: (context, index) {
+        final themeIndex = index % AppTheme.values.length;
+        final theme = AppTheme.values[themeIndex];
+        final color = themeColors[theme]!;
+        final isSelected = themeIndex == _currentIndex;
+
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 300),
+          margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 12),
+          decoration: BoxDecoration(
+            color: color,
+            shape: BoxShape.circle,
+            boxShadow: isSelected
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 6,
+                      spreadRadius: 2,
+                    ),
+                  ]
+                : [],
+          ),
+          child: Center(
+            child: isSelected ? Icon(Icons.check, color: Colors.white) : null,
+          ),
+        );
+      },
     );
   }
 }
