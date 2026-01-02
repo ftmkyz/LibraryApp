@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use, depend_on_referenced_packages, prefer_interpolation_to_compose_strings
 
 import 'package:flutter/material.dart';
+import 'package:library_app/widgets/EqualHeightFlipCard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:barcode_scan2/barcode_scan2.dart';
@@ -772,10 +773,140 @@ class _WishlistPageState extends State<WishlistPage> {
                   final kitap = filteredList[index];
                   final theme = Theme.of(context);
                   final isDark = theme.brightness == Brightness.dark;
-                  return Container(
-                    margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+
+                  // Ön yüz
+                  final frontChild = Container(
+                    padding: EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: theme.cardColor,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          theme.cardColor.withOpacity(0.9),
+                          theme.colorScheme.onSurface.withOpacity(0.6),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.bookmark,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                kitap["kitapAdi"] ?? "",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                              Text(
+                                isTurkish
+                                    ? "Yazar: ${kitap["yazar"]}"
+                                    : "Author: ${kitap["yazar"]}",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Icon(
+                            Icons.arrow_forward_ios,
+                            size: 14,
+                            color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+
+                  // Arka yüz
+                  final backChild = Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          theme.cardColor.withOpacity(0.9),
+                          theme.colorScheme.onSurface.withOpacity(0.6),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isTurkish
+                              ? "Yayınevi: ${kitap["yayinevi"]}"
+                              : "Publisher: ${kitap["yayinevi"]}",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        Text(
+                          "ISBN: ${kitap["isbn"]}",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.add,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                              tooltip: isTurkish
+                                  ? "Kitaplara Ekle"
+                                  : "Add to Books",
+                              onPressed: () => _addToBooks(index),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.edit,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                              tooltip: isTurkish ? "Düzenle" : "Edit",
+                              onPressed: () => _editWishlistBook(kitap),
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.close,
+                                color: theme.colorScheme.error,
+                              ),
+                              tooltip: isTurkish ? "Sil" : "Delete",
+                              onPressed: () => _deleteWishlistBook(kitap),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+
+                  return Container(
+                    margin: EdgeInsets.only(
+                      // horizontal: 12,
+                      // vertical: 8,
+                      bottom: 20,
+                    ),
+                    decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(18),
                       boxShadow: [
                         BoxShadow(
@@ -788,74 +919,9 @@ class _WishlistPageState extends State<WishlistPage> {
                         ),
                       ],
                     ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      leading: Icon(
-                        Icons.bookmark,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                      title: Text(
-                        kitap["kitapAdi"] ?? "",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            isTurkish
-                                ? "Yazar: ${kitap["yazar"]}"
-                                : "Author: ${kitap["yazar"]}",
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            isTurkish
-                                ? "Yayınevi: ${kitap["yayinevi"]}"
-                                : "Publisher: ${kitap["yayinevi"]}",
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            "ISBN: ${kitap["isbn"]}",
-                            style: TextStyle(fontSize: 14),
-                          ),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              Icons.add,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                            tooltip: isTurkish
-                                ? "Kitaplara Ekle"
-                                : "Add to Books",
-                            onPressed: () => _addToBooks(index),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.edit,
-                              color: theme.colorScheme.onSurface,
-                            ),
-                            tooltip: isTurkish ? "Düzenle" : "Edit",
-                            onPressed: () => _editWishlistBook(kitap),
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.close,
-                              color: theme.colorScheme.error,
-                            ),
-                            tooltip: isTurkish ? "Sil" : "Delete",
-                            onPressed: () => _deleteWishlistBook(kitap),
-                          ),
-                        ],
-                      ),
+                    child: EqualHeightFlipCard(
+                      front: frontChild,
+                      back: backChild,
                     ),
                   );
                 },

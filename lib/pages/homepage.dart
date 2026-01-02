@@ -129,7 +129,6 @@ class _ThemeCarouselState extends State<ThemeCarousel> {
   late int _currentIndex;
 
   final Map<AppTheme, Color> themeColors = {
-    AppTheme.light: const Color.fromARGB(255, 184, 182, 175),
     AppTheme.dark: const Color.fromARGB(255, 67, 67, 69),
     AppTheme.luna: const Color.fromARGB(255, 91, 160, 240),
     AppTheme.sunset: const Color.fromARGB(225, 201, 170, 15),
@@ -143,9 +142,12 @@ class _ThemeCarouselState extends State<ThemeCarousel> {
   void initState() {
     super.initState();
     _currentIndex = AppTheme.values.indexOf(widget.currentTheme);
-    // viewportFraction: 0.5 → bir tanesi tam, yanındakiler yarım görünecek
+
+    // Sonsuz döngüde ortalara yerleştirmek için büyük offset ekliyoruz
+    final initialPage = 1000 * AppTheme.values.length + _currentIndex;
+
     _pageController = PageController(
-      initialPage: _currentIndex,
+      initialPage: initialPage,
       viewportFraction: 0.5,
     );
   }

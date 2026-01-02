@@ -1,8 +1,9 @@
-// ignore_for_file: deprecated_member_use, unused_import, depend_on_referenced_packages
+// ignore_for_file: deprecated_member_use, unused_import, depend_on_referenced_packages, unused_local_variable
 
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:library_app/widgets/EqualHeightFlipCard.dart';
 import 'package:library_app/widgets/textarea.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -12,6 +13,7 @@ import 'package:flutter/services.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:flip_card/flip_card.dart';
 
 class BooksPage extends StatefulWidget {
   const BooksPage({super.key});
@@ -1017,163 +1019,297 @@ class _BooksPageState extends State<BooksPage> {
                 itemBuilder: (context, index) {
                   final kitap = filteredList[index];
 
-                  return Container(
-                    margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: theme.cardColor,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: [
-                        BoxShadow(
-                          color: isDark
-                              ? Colors.black54
-                              : Colors.grey.withOpacity(0.3),
-                          blurRadius: 12,
-                          spreadRadius: 2,
-                          offset: Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ListTile(
-                      contentPadding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 12,
-                      ),
-                      leading: Icon(
-                        Icons.menu_book,
-                        color: theme.colorScheme.onSurface,
-                      ),
-                      title: Text(
-                        kitap["kitapAdi"] ?? "",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            isTurkish
-                                ? "Yazar: ${kitap["yazar"]}"
-                                : "Author: ${kitap["yazar"]}",
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            isTurkish
-                                ? "Yayınevi: ${kitap["yayinevi"]}"
-                                : "Publisher: ${kitap["yayinevi"]}",
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            "ISBN: ${kitap["isbn"]}",
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            isTurkish
-                                ? "Sayfa: ${kitap["sayfaSayisi"]}"
-                                : "Pages: ${kitap["sayfaSayisi"]}",
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          if ((kitap["sayfaSayisi"] ?? "").isNotEmpty &&
-                              (kitap["okunanSayfa"] ?? "").isNotEmpty)
-                            Builder(
-                              builder: (context) {
-                                final total =
-                                    int.tryParse(kitap["sayfaSayisi"] ?? "") ??
-                                    0;
-                                final read =
-                                    int.tryParse(kitap["okunanSayfa"] ?? "") ??
-                                    0;
-                                final isCompleted =
-                                    kitap["tamamlandi"] == "true";
-                                final percent = (isCompleted && total > 0)
-                                    ? 1.0
-                                    : total > 0
-                                    ? (read / total).clamp(0.0, 1.0)
-                                    : 0.0;
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: 8),
-                                    LinearProgressIndicator(
-                                      value: percent,
-                                      minHeight: 8,
-                                      backgroundColor: Colors.grey[300],
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        theme.colorScheme.primary,
-                                      ),
-                                    ),
-                                    SizedBox(height: 4),
-                                    Text(
-                                      isTurkish
-                                          ? "%${(percent * 100).toStringAsFixed(0)} okundu"
-                                          : "%${(percent * 100).toStringAsFixed(0)} read",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        // color: Colors.grey[700],
-                                        color: theme.colorScheme.surface,
-                                      ),
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Ön yüz
+                      final double cardHeight = 200;
+                      final frontChild = Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient:
+                              (kitap["tamamlandi"] == "true" ||
+                                  ((kitap["sayfaSayisi"] ?? "") != "" &&
+                                      (kitap["okunanSayfa"] ?? "") != "" &&
+                                      kitap["sayfaSayisi"] ==
+                                          kitap["okunanSayfa"]))
+                              ? LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    theme.colorScheme.tertiary,
+                                    theme.colorScheme.tertiaryFixed,
+                                  ],
+                                )
+                              : LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    theme.cardColor.withOpacity(0.9),
+                                    theme.colorScheme.onSurface.withOpacity(
+                                      0.6,
                                     ),
                                   ],
-                                );
-                              },
+                                ),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Stack(
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.menu_book,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                                SizedBox(width: 12),
+                                Flexible(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        kitap["kitapAdi"] ?? "",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                          color: theme.colorScheme.onSurface,
+                                        ),
+                                      ),
+                                      Text(
+                                        isTurkish
+                                            ? "Yazar: ${kitap["yazar"]}"
+                                            : "Author: ${kitap["yazar"]}",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: theme.colorScheme.onSurface,
+                                        ),
+                                      ),
+                                      SizedBox(height: 30),
+                                      if ((kitap["sayfaSayisi"] ?? "")
+                                              .isNotEmpty &&
+                                          (kitap["okunanSayfa"] ?? "")
+                                              .isNotEmpty)
+                                        Builder(
+                                          builder: (context) {
+                                            final total =
+                                                int.tryParse(
+                                                  kitap["sayfaSayisi"] ?? "",
+                                                ) ??
+                                                0;
+                                            final read =
+                                                int.tryParse(
+                                                  kitap["okunanSayfa"] ?? "",
+                                                ) ??
+                                                0;
+                                            final isCompleted =
+                                                kitap["tamamlandi"] == "true";
+
+                                            final percent =
+                                                (isCompleted && total > 0)
+                                                ? 1.0
+                                                : total > 0
+                                                ? (read / total).clamp(0.0, 1.0)
+                                                : 0.0;
+
+                                            return Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(height: 8),
+                                                LinearProgressIndicator(
+                                                  value: percent,
+                                                  minHeight: 6,
+                                                  backgroundColor:
+                                                      Colors.grey[300],
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation<
+                                                        Color
+                                                      >(
+                                                        theme
+                                                            .colorScheme
+                                                            .primary,
+                                                      ),
+                                                ),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  isTurkish
+                                                      ? "%${(percent * 100).toStringAsFixed(0)} okundu"
+                                                      : "%${(percent * 100).toStringAsFixed(0)} read",
+                                                  style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: theme
+                                                        .colorScheme
+                                                        .onSurface,
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          },
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                Positioned(
+                                  right: 0,
+                                  bottom: 0,
+                                  child: Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 14,
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.6),
+                                  ),
+                                ),
+                              ],
                             ),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Checkbox(
-                            value:
-                                (kitap["tamamlandi"] == "true") ||
-                                ((kitap["sayfaSayisi"] ?? "") != "" &&
-                                    (kitap["okunanSayfa"] ?? "") != "" &&
-                                    kitap["sayfaSayisi"] ==
-                                        kitap["okunanSayfa"]),
-                            onChanged: (val) {
-                              final originalIndex = kitapListesi.indexWhere(
-                                (k) => k["isbn"] == kitap["isbn"],
-                              );
-                              if (originalIndex == -1) return;
-                              setState(() {
-                                kitapListesi[originalIndex]["tamamlandi"] = val
-                                    .toString();
-                                if (val == true) {
-                                  final total =
-                                      kitapListesi[originalIndex]["sayfaSayisi"] ??
-                                      "";
-                                  kitapListesi[originalIndex]["okunanSayfa"] =
-                                      total;
-                                } else {
-                                  kitapListesi[originalIndex]["okunanSayfa"] =
-                                      "0";
-                                }
-                              });
-                              _kitaplariKaydet();
-                            },
-                            activeColor: theme.colorScheme.surface,
-                            checkColor: theme.colorScheme.onSurface,
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.edit,
-                              color: theme.colorScheme.onSurface,
+                          ],
+                        ),
+                      );
+
+                      // Arka yüz
+                      final backChild = Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          gradient:
+                              (kitap["tamamlandi"] == "true" ||
+                                  ((kitap["sayfaSayisi"] ?? "") != "" &&
+                                      (kitap["okunanSayfa"] ?? "") != "" &&
+                                      kitap["sayfaSayisi"] ==
+                                          kitap["okunanSayfa"]))
+                              ? LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    theme.colorScheme.tertiary,
+                                    theme.colorScheme.tertiaryFixed,
+                                  ],
+                                )
+                              : LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [
+                                    theme.cardColor.withOpacity(0.9),
+                                    theme.colorScheme.onSurface.withOpacity(
+                                      0.6,
+                                    ),
+                                  ],
+                                ),
+                          borderRadius: BorderRadius.circular(18),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isTurkish
+                                  ? "Yayınevi: ${kitap["yayinevi"]}"
+                                  : "Publisher: ${kitap["yayinevi"]}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface,
+                              ),
                             ),
-                            onPressed: () =>
-                                _kitapDuzenle(kitap), // use book map
-                            tooltip: isTurkish ? 'Düzenle' : 'Edit',
-                          ),
-                          IconButton(
-                            icon: Icon(
-                              Icons.close,
-                              color: theme.colorScheme.error,
+                            Text(
+                              "ISBN: ${kitap["isbn"]}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface,
+                              ),
                             ),
-                            onPressed: () => _kitapSil(kitap), // use book map
-                            tooltip: isTurkish ? 'Sil' : 'Delete',
-                          ),
-                        ],
-                      ),
-                    ),
+                            Text(
+                              isTurkish
+                                  ? "Sayfa: ${kitap["sayfaSayisi"]}"
+                                  : "Pages: ${kitap["sayfaSayisi"]}",
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
+                            // Progress bar ve diğer detaylar...
+                            SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Checkbox(
+                                  value:
+                                      (kitap["tamamlandi"] == "true") ||
+                                      ((kitap["sayfaSayisi"] ?? "") != "" &&
+                                          (kitap["okunanSayfa"] ?? "") != "" &&
+                                          kitap["sayfaSayisi"] ==
+                                              kitap["okunanSayfa"]),
+                                  onChanged: (val) {
+                                    final originalIndex = kitapListesi
+                                        .indexWhere(
+                                          (k) => k["isbn"] == kitap["isbn"],
+                                        );
+                                    if (originalIndex == -1) return;
+                                    setState(() {
+                                      kitapListesi[originalIndex]["tamamlandi"] =
+                                          val.toString();
+                                      if (val == true) {
+                                        final total =
+                                            kitapListesi[originalIndex]["sayfaSayisi"] ??
+                                            "";
+                                        kitapListesi[originalIndex]["okunanSayfa"] =
+                                            total;
+                                      } else {
+                                        kitapListesi[originalIndex]["okunanSayfa"] =
+                                            "0";
+                                      }
+                                    });
+                                    _kitaplariKaydet();
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.edit,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                  onPressed: () => _kitapDuzenle(kitap),
+                                ),
+                                IconButton(
+                                  icon: Icon(
+                                    Icons.close,
+                                    color: theme.colorScheme.error,
+                                  ),
+                                  onPressed: () => _kitapSil(kitap),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      );
+
+                      return Container(
+                        margin: EdgeInsets.only(
+                          // horizontal: 12,
+                          // vertical: 8,
+                          bottom: 20,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark
+                                  ? Colors.black26
+                                  : Colors.grey.withOpacity(0.1),
+                              blurRadius: 4,
+                              spreadRadius: 0.2,
+                              offset: Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        child: EqualHeightFlipCard(
+                          front: frontChild,
+                          back: backChild,
+                        ),
+                        // child: FlipCard(
+                        //   direction: FlipDirection.HORIZONTAL,
+                        //   front: frontChild,
+                        //   back: backChild,
+                        // ),
+                      );
+                    },
                   );
                 },
               );

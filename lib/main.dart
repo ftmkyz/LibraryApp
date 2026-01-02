@@ -17,11 +17,11 @@ class MyApp extends StatefulWidget {
 }
 
 // Tema seçenekleri
-enum AppTheme { light, dark, luna, sunset, olive, pinkgray, red, chocalate }
+enum AppTheme { dark, luna, sunset, olive, pinkgray, red, chocalate }
 
 class _MyAppState extends State<MyApp> {
   Locale _locale = const Locale('tr');
-  AppTheme _currentTheme = AppTheme.light;
+  AppTheme _currentTheme = AppTheme.dark;
 
   @override
   void initState() {
@@ -33,14 +33,11 @@ class _MyAppState extends State<MyApp> {
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Tema yükleme
-    final savedTheme = prefs.getString('selectedTheme');
-    if (savedTheme != null) {
+    // Tema yükleme (index ile)
+    final savedThemeIndex = prefs.getInt('selectedThemeIndex');
+    if (savedThemeIndex != null) {
       setState(() {
-        _currentTheme = AppTheme.values.firstWhere(
-          (t) => t.toString() == savedTheme,
-          orElse: () => AppTheme.luna,
-        );
+        _currentTheme = AppTheme.values[savedThemeIndex];
       });
     }
 
@@ -56,7 +53,7 @@ class _MyAppState extends State<MyApp> {
   // Tema değişince kaydet
   Future<void> _saveTheme(AppTheme theme) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('selectedTheme', theme.toString());
+    await prefs.setInt('selectedThemeIndex', theme.index);
   }
 
   // Dil değişince kaydet
@@ -99,6 +96,8 @@ class _MyAppState extends State<MyApp> {
             onBackground: Colors.white,
             error: Color.fromARGB(208, 8, 231, 231),
             onError: Colors.white,
+            tertiary: Color.fromARGB(208, 3, 123, 123),
+            tertiaryFixed: Color.fromARGB(208, 5, 231, 231),
           ),
           textTheme: GoogleFonts.poppinsTextTheme(),
         );
@@ -110,9 +109,10 @@ class _MyAppState extends State<MyApp> {
             brightness: Brightness.light,
             surface: Color(0xFF2A3843),
             onSurface: Color(0xFFFF096C),
-            error: Color(0xFF4F6172),
+            error: Color.fromARGB(255, 114, 79, 96),
             primary: Color(0xFF192731),
-
+            tertiary: Color.fromARGB(255, 82, 26, 48),
+            tertiaryFixed: Color.fromARGB(255, 228, 69, 132),
             onPrimary: Colors.white,
             secondary: Color.fromARGB(255, 75, 46, 2),
             onSecondary: Colors.black,
@@ -133,7 +133,8 @@ class _MyAppState extends State<MyApp> {
             surface: Color(0xFF974A45), //background of cards
             error: Color(0xFF871A1D), //
             primary: Color(0xFFD76762), //main color
-
+            tertiary: Color.fromARGB(255, 46, 9, 10), //okundu
+            tertiaryFixed: Color.fromARGB(255, 219, 41, 47),
             onPrimary: Colors.white,
             secondary: Color.fromARGB(255, 75, 46, 2),
             onSecondary: Colors.black,
@@ -153,7 +154,8 @@ class _MyAppState extends State<MyApp> {
             surface: Color(0xFF26140C),
             error: Color(0xFF492617),
             primary: Color(0xFF713B24),
-
+            tertiary: Color.fromARGB(255, 35, 13, 3),
+            tertiaryFixed: Color.fromARGB(255, 194, 72, 16),
             onPrimary: Colors.white,
             secondary: Color.fromARGB(255, 214, 212, 208),
             onSecondary: Color.fromARGB(255, 236, 232, 232),
@@ -174,6 +176,8 @@ class _MyAppState extends State<MyApp> {
             secondary: Color.fromARGB(255, 44, 130, 184),
             onSecondary: Colors.white,
             surface: Color.fromARGB(255, 49, 86, 129),
+            tertiary: Color.fromARGB(255, 10, 33, 61),
+            tertiaryFixed: Color.fromARGB(255, 31, 106, 197),
             onSurface: Color(0xFFE0F7FA),
             background: Color.fromARGB(255, 37, 60, 98),
             onBackground: Colors.white,
@@ -189,6 +193,8 @@ class _MyAppState extends State<MyApp> {
             brightness: Brightness.light,
             surface: Color.fromARGB(255, 242, 207, 29),
             onSurface: Color.fromARGB(255, 96, 44, 4),
+            tertiary: Color.fromARGB(255, 201, 130, 9),
+            tertiaryFixed: Color.fromARGB(255, 243, 171, 47),
             primary: Color(0xFF773D02),
             onPrimary: Colors.white,
             secondary: Color.fromARGB(255, 75, 46, 2),
@@ -207,8 +213,10 @@ class _MyAppState extends State<MyApp> {
           colorScheme: const ColorScheme(
             brightness: Brightness.light,
             surface: Color(0xFF27301B),
+            tertiary: Color(0xFF41521E),
+            tertiaryFixed: Color.fromARGB(255, 173, 219, 81),
             onSurface: Color(0xFFD8DDA8),
-            primary: Color(0xFF99A558),
+            primary: Color.fromARGB(255, 68, 174, 60),
             onPrimary: Colors.white,
             secondary: Color.fromARGB(255, 75, 46, 2),
             onSecondary: Colors.black,
@@ -220,16 +228,8 @@ class _MyAppState extends State<MyApp> {
           textTheme: GoogleFonts.poppinsTextTheme(),
         );
 
-      case AppTheme.light:
+      // case AppTheme.light:
     }
-    return ThemeData(
-      useMaterial3: true,
-      colorScheme: const ColorScheme.light(
-        error: Color.fromARGB(255, 4, 44, 112),
-        onError: Colors.white,
-      ),
-      textTheme: GoogleFonts.poppinsTextTheme(),
-    );
   }
 
   @override
