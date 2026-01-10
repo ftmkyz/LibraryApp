@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, use_super_parameters
 
 import 'package:flutter/material.dart';
 // ignore: depend_on_referenced_packages
@@ -9,7 +9,6 @@ class EqualHeightFlipCard extends StatefulWidget {
   final Widget back;
   final double defaultHeight;
 
-  // ignore: use_super_parameters
   const EqualHeightFlipCard({
     required this.front,
     required this.back,
@@ -33,7 +32,7 @@ class _EqualHeightFlipCardState extends State<EqualHeightFlipCard> {
 
     if (newHeight > 0 && newHeight != measuredHeight) {
       setState(() {
-        measuredHeight = newHeight; // her zaman ölçülen değere geç
+        measuredHeight = newHeight;
       });
     }
   }
@@ -42,19 +41,31 @@ class _EqualHeightFlipCardState extends State<EqualHeightFlipCard> {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => _updateHeight());
 
-    // Eğer ölçüm yapılmadıysa defaultHeight kullan, ölçüm sonrası her zaman measuredHeight
-    final effectiveHeight = measuredHeight > 0
-        ? measuredHeight
-        : widget.defaultHeight;
+    if (measuredHeight == 0) {
+      _updateHeight();
+    }
+    final effectiveHeight = measuredHeight > 0 ? measuredHeight : null;
 
-    return FlipCard(
-      direction: FlipDirection.HORIZONTAL,
-      front: SizedBox(
-        key: frontKey,
-        height: effectiveHeight,
-        child: widget.front,
+    return SizedBox(
+      height: effectiveHeight,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 4,
+              spreadRadius: 0.2,
+              offset: const Offset(0, 1),
+            ),
+          ],
+        ),
+        child: FlipCard(
+          direction: FlipDirection.HORIZONTAL,
+          front: Container(key: frontKey, child: widget.front),
+          back: Container(key: backKey, child: widget.back),
+        ),
       ),
-      back: SizedBox(key: backKey, height: effectiveHeight, child: widget.back),
     );
   }
 }

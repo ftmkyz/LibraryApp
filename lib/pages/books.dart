@@ -1022,14 +1022,14 @@ class _BooksPageState extends State<BooksPage> {
                   return LayoutBuilder(
                     builder: (context, constraints) {
                       // Ön yüz
-                      final double cardHeight = 200;
+                      // final double cardHeight = 200;
                       final frontChild = Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           gradient:
                               (kitap["tamamlandi"] == "true" ||
-                                  ((kitap["sayfaSayisi"] ?? "") != "" &&
-                                      (kitap["okunanSayfa"] ?? "") != "" &&
+                                  ((kitap["sayfaSayisi"] ?? "").isNotEmpty &&
+                                      (kitap["okunanSayfa"] ?? "").isNotEmpty &&
                                       kitap["sayfaSayisi"] ==
                                           kitap["okunanSayfa"]))
                               ? LinearGradient(
@@ -1060,7 +1060,7 @@ class _BooksPageState extends State<BooksPage> {
                                   Icons.menu_book,
                                   color: theme.colorScheme.onSurface,
                                 ),
-                                SizedBox(width: 12),
+                                const SizedBox(width: 12),
                                 Flexible(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
@@ -1084,7 +1084,7 @@ class _BooksPageState extends State<BooksPage> {
                                           color: theme.colorScheme.onSurface,
                                         ),
                                       ),
-                                      SizedBox(height: 30),
+                                      const SizedBox(height: 30),
                                       if ((kitap["sayfaSayisi"] ?? "")
                                               .isNotEmpty &&
                                           (kitap["okunanSayfa"] ?? "")
@@ -1116,7 +1116,7 @@ class _BooksPageState extends State<BooksPage> {
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                SizedBox(height: 8),
+                                                const SizedBox(height: 8),
                                                 LinearProgressIndicator(
                                                   value: percent,
                                                   minHeight: 6,
@@ -1131,7 +1131,7 @@ class _BooksPageState extends State<BooksPage> {
                                                             .primary,
                                                       ),
                                                 ),
-                                                SizedBox(height: 4),
+                                                const SizedBox(height: 4),
                                                 Text(
                                                   isTurkish
                                                       ? "%${(percent * 100).toStringAsFixed(0)} okundu"
@@ -1150,17 +1150,19 @@ class _BooksPageState extends State<BooksPage> {
                                     ],
                                   ),
                                 ),
-                                Positioned(
-                                  right: 0,
-                                  bottom: 0,
-                                  child: Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 14,
-                                    color: theme.colorScheme.onSurface
-                                        .withOpacity(0.6),
-                                  ),
-                                ),
                               ],
+                            ),
+
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Icon(
+                                Icons.arrow_forward_ios,
+                                size: 14,
+                                color: theme.colorScheme.onSurface.withOpacity(
+                                  0.6,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -1168,12 +1170,12 @@ class _BooksPageState extends State<BooksPage> {
 
                       // Arka yüz
                       final backChild = Container(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           gradient:
                               (kitap["tamamlandi"] == "true" ||
-                                  ((kitap["sayfaSayisi"] ?? "") != "" &&
-                                      (kitap["okunanSayfa"] ?? "") != "" &&
+                                  ((kitap["sayfaSayisi"] ?? "").isNotEmpty &&
+                                      (kitap["okunanSayfa"] ?? "").isNotEmpty &&
                                       kitap["sayfaSayisi"] ==
                                           kitap["okunanSayfa"]))
                               ? LinearGradient(
@@ -1196,118 +1198,109 @@ class _BooksPageState extends State<BooksPage> {
                                 ),
                           borderRadius: BorderRadius.circular(18),
                         ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Stack(
                           children: [
-                            Text(
-                              isTurkish
-                                  ? "Yayınevi: ${kitap["yayinevi"]}"
-                                  : "Publisher: ${kitap["yayinevi"]}",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                            Text(
-                              "ISBN: ${kitap["isbn"]}",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                            Text(
-                              isTurkish
-                                  ? "Sayfa: ${kitap["sayfaSayisi"]}"
-                                  : "Pages: ${kitap["sayfaSayisi"]}",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
-                            // Progress bar ve diğer detaylar...
-                            SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Checkbox(
-                                  value:
-                                      (kitap["tamamlandi"] == "true") ||
-                                      ((kitap["sayfaSayisi"] ?? "") != "" &&
-                                          (kitap["okunanSayfa"] ?? "") != "" &&
-                                          kitap["sayfaSayisi"] ==
-                                              kitap["okunanSayfa"]),
-                                  onChanged: (val) {
-                                    final originalIndex = kitapListesi
-                                        .indexWhere(
-                                          (k) => k["isbn"] == kitap["isbn"],
-                                        );
-                                    if (originalIndex == -1) return;
-                                    setState(() {
-                                      kitapListesi[originalIndex]["tamamlandi"] =
-                                          val.toString();
-                                      if (val == true) {
-                                        final total =
-                                            kitapListesi[originalIndex]["sayfaSayisi"] ??
-                                            "";
-                                        kitapListesi[originalIndex]["okunanSayfa"] =
-                                            total;
-                                      } else {
-                                        kitapListesi[originalIndex]["okunanSayfa"] =
-                                            "0";
-                                      }
-                                    });
-                                    _kitaplariKaydet();
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.edit,
+                                Text(
+                                  isTurkish
+                                      ? "Yayınevi: ${kitap["yayinevi"]}"
+                                      : "Publisher: ${kitap["yayinevi"]}",
+                                  style: TextStyle(
+                                    fontSize: 14,
                                     color: theme.colorScheme.onSurface,
                                   ),
-                                  onPressed: () => _kitapDuzenle(kitap),
                                 ),
-                                IconButton(
-                                  icon: Icon(
-                                    Icons.close,
-                                    color: theme.colorScheme.error,
+                                Text(
+                                  "ISBN: ${kitap["isbn"]}",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: theme.colorScheme.onSurface,
                                   ),
-                                  onPressed: () => _kitapSil(kitap),
                                 ),
+                                Text(
+                                  isTurkish
+                                      ? "Sayfa: ${kitap["sayfaSayisi"]}"
+                                      : "Pages: ${kitap["sayfaSayisi"]}",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
                               ],
+                            ),
+
+                            Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Checkbox(
+                                    value:
+                                        (kitap["tamamlandi"] == "true") ||
+                                        ((kitap["sayfaSayisi"] ?? "")
+                                                .isNotEmpty &&
+                                            (kitap["okunanSayfa"] ?? "")
+                                                .isNotEmpty &&
+                                            kitap["sayfaSayisi"] ==
+                                                kitap["okunanSayfa"]),
+                                    onChanged: (val) {
+                                      final originalIndex = kitapListesi
+                                          .indexWhere(
+                                            (k) => k["isbn"] == kitap["isbn"],
+                                          );
+                                      if (originalIndex == -1) return;
+                                      setState(() {
+                                        kitapListesi[originalIndex]["tamamlandi"] =
+                                            val.toString();
+                                        if (val == true) {
+                                          final total =
+                                              kitapListesi[originalIndex]["sayfaSayisi"] ??
+                                              "";
+                                          kitapListesi[originalIndex]["okunanSayfa"] =
+                                              total;
+                                        } else {
+                                          kitapListesi[originalIndex]["okunanSayfa"] =
+                                              "0";
+                                        }
+                                      });
+                                      _kitaplariKaydet();
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.edit,
+                                      color: theme.colorScheme.onSurface,
+                                    ),
+                                    onPressed: () => _kitapDuzenle(kitap),
+                                  ),
+                                  IconButton(
+                                    icon: Icon(
+                                      Icons.close,
+                                      color: theme.colorScheme.error,
+                                    ),
+                                    onPressed: () => _kitapSil(kitap),
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
                       );
 
-                      return Container(
-                        margin: EdgeInsets.only(
-                          // horizontal: 12,
-                          // vertical: 8,
-                          bottom: 20,
+                      return SizedBox(
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 20),
+
+                          child: EqualHeightFlipCard(
+                            front: frontChild,
+                            back: backChild,
+                          ),
                         ),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(18),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark
-                                  ? Colors.black26
-                                  : Colors.grey.withOpacity(0.1),
-                              blurRadius: 4,
-                              spreadRadius: 0.2,
-                              offset: Offset(0, 1),
-                            ),
-                          ],
-                        ),
-                        child: EqualHeightFlipCard(
-                          front: frontChild,
-                          back: backChild,
-                        ),
-                        // child: FlipCard(
-                        //   direction: FlipDirection.HORIZONTAL,
-                        //   front: frontChild,
-                        //   back: backChild,
-                        // ),
                       );
                     },
                   );

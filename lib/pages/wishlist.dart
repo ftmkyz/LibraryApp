@@ -776,7 +776,7 @@ class _WishlistPageState extends State<WishlistPage> {
 
                   // Ön yüz
                   final frontChild = Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -788,39 +788,45 @@ class _WishlistPageState extends State<WishlistPage> {
                       ),
                       borderRadius: BorderRadius.circular(18),
                     ),
-                    child: Row(
+                    child: Stack(
                       children: [
-                        Icon(
-                          Icons.bookmark,
-                          color: theme.colorScheme.onSurface,
-                        ),
-                        SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                kitap["kitapAdi"] ?? "",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  color: theme.colorScheme.onSurface,
-                                ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.bookmark,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    kitap["kitapAdi"] ?? "",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
+                                      color: theme.colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  Text(
+                                    isTurkish
+                                        ? "Yazar: ${kitap["yazar"]}"
+                                        : "Author: ${kitap["yazar"]}",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: theme.colorScheme.onSurface,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Text(
-                                isTurkish
-                                    ? "Yazar: ${kitap["yazar"]}"
-                                    : "Author: ${kitap["yazar"]}",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: theme.colorScheme.onSurface,
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                        Align(
-                          alignment: Alignment.bottomRight,
+
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
                           child: Icon(
                             Icons.arrow_forward_ios,
                             size: 14,
@@ -833,7 +839,7 @@ class _WishlistPageState extends State<WishlistPage> {
 
                   // Arka yüz
                   final backChild = Container(
-                    padding: EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
@@ -845,56 +851,66 @@ class _WishlistPageState extends State<WishlistPage> {
                       ),
                       borderRadius: BorderRadius.circular(18),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Stack(
                       children: [
-                        Text(
-                          isTurkish
-                              ? "Yayınevi: ${kitap["yayinevi"]}"
-                              : "Publisher: ${kitap["yayinevi"]}",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                        Text(
-                          "ISBN: ${kitap["isbn"]}",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            IconButton(
-                              icon: Icon(
-                                Icons.add,
+                            Text(
+                              isTurkish
+                                  ? "Yayınevi: ${kitap["yayinevi"]}"
+                                  : "Publisher: ${kitap["yayinevi"]}",
+                              style: TextStyle(
+                                fontSize: 14,
                                 color: theme.colorScheme.onSurface,
                               ),
-                              tooltip: isTurkish
-                                  ? "Kitaplara Ekle"
-                                  : "Add to Books",
-                              onPressed: () => _addToBooks(index),
                             ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.edit,
+                            Text(
+                              "ISBN: ${kitap["isbn"]}",
+                              style: TextStyle(
+                                fontSize: 14,
                                 color: theme.colorScheme.onSurface,
                               ),
-                              tooltip: isTurkish ? "Düzenle" : "Edit",
-                              onPressed: () => _editWishlistBook(kitap),
                             ),
-                            IconButton(
-                              icon: Icon(
-                                Icons.close,
-                                color: theme.colorScheme.error,
-                              ),
-                              tooltip: isTurkish ? "Sil" : "Delete",
-                              onPressed: () => _deleteWishlistBook(kitap),
-                            ),
+                            const SizedBox(height: 12),
                           ],
+                        ),
+
+                        Positioned(
+                          right: 0,
+                          bottom: 0,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  Icons.add,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                                tooltip: isTurkish
+                                    ? "Kitaplara Ekle"
+                                    : "Add to Books",
+                                onPressed: () => _addToBooks(index),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.edit,
+                                  color: theme.colorScheme.onSurface,
+                                ),
+                                tooltip: isTurkish ? "Düzenle" : "Edit",
+                                onPressed: () => _editWishlistBook(kitap),
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.close,
+                                  color: theme.colorScheme.error,
+                                ),
+                                tooltip: isTurkish ? "Sil" : "Delete",
+                                onPressed: () => _deleteWishlistBook(kitap),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
