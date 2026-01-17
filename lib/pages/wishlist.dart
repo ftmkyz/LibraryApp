@@ -782,8 +782,8 @@ class _WishlistPageState extends State<WishlistPage> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          theme.cardColor.withOpacity(0.9),
-                          theme.colorScheme.onSurface.withOpacity(0.6),
+                          theme.colorScheme.background,
+                          theme.colorScheme.onBackground,
                         ],
                       ),
                       borderRadius: BorderRadius.circular(18),
@@ -845,8 +845,8 @@ class _WishlistPageState extends State<WishlistPage> {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          theme.cardColor.withOpacity(0.9),
-                          theme.colorScheme.onSurface.withOpacity(0.6),
+                          theme.colorScheme.tertiary,
+                          theme.colorScheme.tertiaryFixed,
                         ],
                       ),
                       borderRadius: BorderRadius.circular(18),

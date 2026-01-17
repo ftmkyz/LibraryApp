@@ -1044,10 +1044,8 @@ class _BooksPageState extends State<BooksPage> {
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    theme.cardColor.withOpacity(0.9),
-                                    theme.colorScheme.onSurface.withOpacity(
-                                      0.6,
-                                    ),
+                                    theme.colorScheme.background,
+                                    theme.colorScheme.onBackground,
                                   ],
                                 ),
                           borderRadius: BorderRadius.circular(18),
@@ -1190,10 +1188,8 @@ class _BooksPageState extends State<BooksPage> {
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
                                   colors: [
-                                    theme.cardColor.withOpacity(0.9),
-                                    theme.colorScheme.onSurface.withOpacity(
-                                      0.6,
-                                    ),
+                                    theme.colorScheme.background,
+                                    theme.colorScheme.onBackground,
                                   ],
                                 ),
                           borderRadius: BorderRadius.circular(18),
